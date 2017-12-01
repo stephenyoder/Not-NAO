@@ -1,4 +1,4 @@
-//GITHUB TEST
+//Last modified 11/30 by S.Y.
 #include <SoftwareSerial.h>
 #include <PololuQik.h>
 
@@ -37,6 +37,7 @@ double outRight = 0;
 
 bool ramp = false; 
 bool inc_done = false;
+bool dec_done = false;
 
 enum Command { NONE, STRAIGHT, LEFT, RIGHT};
 Command command = NONE;  // 0:none, 1:straight, 2:left, 3:right
@@ -105,11 +106,11 @@ void setup() {
   
 }
 
-void loop() {
-  if(commandRead){  
-    processCommand(inbuf); 
-    for (int j=0;j<BUFSIZE;j++) inbuf[j]=0;
-      commandRead = false;
+void loop() { 
+  //if(commandRead){  //this loop is commented out for the test
+  //  processCommand(inbuf); 
+  //  for (int j=0;j<BUFSIZE;j++) inbuf[j]=0;
+  //    commandRead = false;
     //Serial.println("test");
   }
   if(tagRead) {
@@ -142,7 +143,16 @@ void loop() {
     
     tagRead = false;
   }
-  
+
+  //test
+forward();
+delay(1000);
+turn_left();
+delay(1000);
+turn_right();
+delay(1000);
+//end test
+
   pdCallback();
   delay(4);
 }
@@ -224,9 +234,27 @@ void turn_left(){
   outLeft = 0;
   outRight = 0;
   
-  setHeading = 6*PI/10;
+  setHeading = 6*PI/10; //108 degrees
   oldTheta = PI/2;
 }
+
+void turn_right(){
+  moving = true;
+  
+  dec_done = false;
+
+  command = RIGHT;
+
+  //encoderValueM0 = 0;
+  //encoderValueM1 = 0;
+  
+  outLeft = 0;
+  outRight = 0;
+  
+  setHeading = 4*PI/10; //72 degrees
+  oldTheta = PI/2;
+}
+
 
 void halt(){
   moving = false;
@@ -296,8 +324,8 @@ void pdCallback()
 
       outRight = outLeft;
 
-      qik.setM0Speed(outLeft);
-      qik.setM1Speed(-outRight);
+      qik.setM0Speed(outLeft); //sets the left motor to rotate
+      qik.setM1Speed(-outRight); //sets the right motor to rotate
       
       oldTheta = newTheta;
 
@@ -346,7 +374,7 @@ void pdCallback()
       else if(outRight < -127)
         outRight = -127;
 
-      if(!inc_done && ((newTheta+PI/5) >= setHeading))
+      if(!inc_done && ((newTheta+PI/5) >= setHeading)) //gradually increase heading angle by pi/20 until heading angle is reached
       {
         setHeading += PI/20;
         if(newTheta >= PI)
@@ -369,6 +397,69 @@ void pdCallback()
 //      Serial.println();
       break;
   }
+
+
+    case RIGHT: //needs to be verified
+      Kp = 9; //needs verification
+      Kd = 12; //needs verification
+      newPosM0 = encoderValueM0;
+      newPosM1 = encoderValueM1;
+      newTime = millis();
+      ts = (newTime - oldTime);
+      oldTime = newTime;
+    
+      //velM0 = (newPosM0-oldPosM0) * 1000 /(ts);  // this is for daq
+      //velM1 = (newPosM1-oldPosM1) * 1000 /(ts);  // this is for daq
+      
+      phiM0 = (newPosM0 - oldPosM0) * 1000 * 2*PI / (3408 * ts);
+      phiM1 = (newPosM1 - oldPosM1) * 1000 * 2*PI / (3408 * ts);
+      oldPosM0 = newPosM0;
+      oldPosM1 = newPosM1;
+    
+	//the following calculations need to be verified
+      omega = (r*phiM1/(2*l)-r*phiM0/(2*l));
+      filteredOmega = 0.3679*filteredOmega+0.6321*omega;
+      newTheta = oldTheta + filteredOmega * ts / 1000;  // replaced omega with filteredOmega
+      error = setHeading - newTheta;
+      pd_out = error*Kp - filteredOmega*Kd;
+
+      outLeft += pd_out/2;
+      outRight -= pd_out/2;
+
+      if(outLeft > 127)
+        outLeft = 127;
+      else if(outLeft < -127)
+        outLeft = -127;
+      
+      if(outRight > 127)
+        outRight = 127;
+      else if(outRight < -127)
+        outRight = -127;
+
+      if(!dec_done && ((newTheta-PI/5) <= setHeading)) //gradually decrease heading angle by pi/20 until heading angle is reached
+      {
+        setHeading -= PI/20;
+        if(newTheta <= 0)
+        {
+          setHeading = 0;
+          dec_done = true;
+          forward();
+        }
+      }
+
+      qik.setM0Speed(-outLeft); //needs to be verified
+      qik.setM1Speed(outRight); //needs to be verified
+      
+      oldTheta = newTheta;
+//      Serial.print(ts);
+//      Serial.print(" ");
+//      Serial.print(velM0);  // this is for daq
+//      Serial.print(" ");
+//      Serial.print(velM1);
+//      Serial.println();
+      break;
+  }
+
 
 //  Serial.print(newTheta*180/PI);
 //  Serial.print(" ");
