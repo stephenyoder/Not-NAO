@@ -16,8 +16,8 @@
 
 /* Authors: Yoonseok Pyo, Leon Jung, Darby Lim, HanCheol Cho */
 
-#ifndef TURTLEBOT3_CORE_CONFIG_H_
-#define TURTLEBOT3_CORE_CONFIG_H_
+#ifndef OPENCR_CORE_CONFIG_H_
+#define OPENCR_CORE_CONFIG_H_
 
 #include <math.h>
 
@@ -99,4 +99,4 @@ float checkVoltage(void);
 void showLedStatus(void);
 void updateRxTxLed(void);
 
-#endif // TURTLEBOT3_CORE_CONFIG_H_
+#endif // OPENCR_CORE_CONFIG_H_

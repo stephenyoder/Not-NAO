@@ -16,7 +16,7 @@
 
 /* Authors: Yoonseok Pyo, Leon Jung, Darby Lim, HanCheol Cho */
 
-#include "turtlebot3_core_config.h"
+#include "OpenCR_core_config.h"
 
 /*******************************************************************************
 * ROS NodeHandle
