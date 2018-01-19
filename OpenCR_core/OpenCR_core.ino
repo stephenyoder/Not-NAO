@@ -18,6 +18,9 @@
 
 #include "OpenCR_core_config.h"
 
+//#include <SoftwareSerial.h>
+#include <PololuQik.h>
+
 /*******************************************************************************
 * ROS NodeHandle
 *******************************************************************************/
@@ -126,6 +129,34 @@ static float   battery_valtage_raw = 0;
 static uint8_t battery_state   = BATTERY_POWER_OFF;
 
 
+volatile long encoderValueM0;
+volatile long encoderValueM1;
+
+
+// Encoder Counter prototypes
+void enc_aM0(void);
+void enc_bM0(void);
+void enc_aM1(void);
+void enc_bM1(void);
+
+
+/*
+Required connections between Arduino and qik 2s12v10:
+
+      Arduino   qik 2s12v10
+---------------------------
+          GND - GND
+Digital Pin 2 - TX
+Digital Pin 3 - RX
+Digital Pin 4 - RESET
+
+DO NOT connect the 5V output on the Arduino to the 5V output on the qik 2s12v10!
+*/
+PololuQik2s12v10 qik(2, 3, 4);
+// **************** FOR ROBOT BASE ******************
+// Motor 0 is the left and Motor 1 is the right
+// **************************************************
+
 
 
 
@@ -134,6 +165,20 @@ static uint8_t battery_state   = BATTERY_POWER_OFF;
 *******************************************************************************/
 void setup()
 {
+
+  qik.init();
+  
+  pinMode(18, INPUT);
+  pinMode(19, INPUT);
+  pinMode(20, INPUT);
+  pinMode(21, INPUT);
+
+  attachInterrupt(digitalPinToInterrupt(18), enc_aM0, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(19), enc_bM0, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(20), enc_aM1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(21), enc_bM1, CHANGE);
+  
+  
   // Initialize ROS node handle, advertise and subscribe the topics
   nh.initNode();
   nh.getHardware()->setBaud(115200);
@@ -475,6 +520,82 @@ void updateTF(geometry_msgs::TransformStamped& odom_tf)
   odom_tf.transform.translation.z = odom.pose.pose.position.z;
   odom_tf.transform.rotation = odom.pose.pose.orientation;
 }
+
+/*******************************************************************************
+* Update Motor Encoder Values
+*******************************************************************************/
+void enc_aM0()
+{
+  if (digitalRead(19) == HIGH)
+  {
+    if (digitalRead(18) == HIGH)
+      encoderValueM0++;
+    else
+      encoderValueM0--;
+  }
+  else
+  {
+    if (digitalRead(18) == HIGH)
+      encoderValueM0--;
+    else
+      encoderValueM0++;
+  }
+}
+
+void enc_bM0()
+{
+  if (digitalRead(18) == HIGH)
+  {
+    if (digitalRead(19) == HIGH)
+      encoderValueM0--;
+    else
+      encoderValueM0++;
+  }
+  else
+  {
+    if (digitalRead(19) == HIGH)
+      encoderValueM0++;
+    else
+      encoderValueM0--;
+  }
+}
+
+void enc_aM1()
+{
+  if (digitalRead(21) == HIGH)
+  {
+    if (digitalRead(20) == HIGH)
+      encoderValueM1--;
+    else
+      encoderValueM1++;
+  }
+  else
+  {
+    if (digitalRead(20) == HIGH)
+      encoderValueM1++;
+    else
+      encoderValueM1--;
+  }
+}
+
+void enc_bM1()
+{
+  if (digitalRead(20) == HIGH)
+  {
+    if (digitalRead(21) == HIGH)
+      encoderValueM1++;
+    else
+      encoderValueM1--;
+  }
+  else
+  {
+    if (digitalRead(21) == HIGH)
+      encoderValueM1--;
+    else
+      encoderValueM1++;
+  }
+}
+
 
 /*******************************************************************************
 * Receive remocon (RC100) data
