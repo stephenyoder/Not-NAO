@@ -14,16 +14,16 @@ uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
 boolean obstacle = false;
 
 NewPing sonar[SONAR_NUM] = {     // Sensor object array.
-  NewPing(22, 23, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping.
-  NewPing(24, 25, MAX_DISTANCE),
-  NewPing(26, 27, MAX_DISTANCE),
-  NewPing(28, 29, MAX_DISTANCE),
-  NewPing(30, 31, MAX_DISTANCE),
-  NewPing(32, 33, MAX_DISTANCE),
-  NewPing(34, 35, MAX_DISTANCE),
-  NewPing(36, 37, MAX_DISTANCE),
-  NewPing(38, 39, MAX_DISTANCE),
-  NewPing(40, 41, MAX_DISTANCE)
+  NewPing(50, 51, MAX_DISTANCE), // Each sensor's trigger pin, echo pin, and max distance to ping.
+  NewPing(52, 53, MAX_DISTANCE),
+  NewPing(54, 55, MAX_DISTANCE),
+  NewPing(56, 57, MAX_DISTANCE),
+  NewPing(58, 59, MAX_DISTANCE),
+  NewPing(60, 61, MAX_DISTANCE),
+  NewPing(62, 63, MAX_DISTANCE),
+  NewPing(64, 65, MAX_DISTANCE),
+  NewPing(66, 67, MAX_DISTANCE),
+  NewPing(10, 11, MAX_DISTANCE)
 };
 
 void setup() {
