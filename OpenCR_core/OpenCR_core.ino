@@ -128,7 +128,7 @@ static uint8_t battery_voltage = 0;
 static float   battery_valtage_raw = 0;
 static uint8_t battery_state   = BATTERY_POWER_OFF;
 
-
+//encoder counts
 volatile long encoderValueM0;
 volatile long encoderValueM1;
 
@@ -193,7 +193,7 @@ void setup()
   nh.loginfo("Connected to OpenCR board!");
 
   // Setting for Dynamixel motors
-  motor_driver.init();
+ // motor_driver.init();
 
   // Setting for IMU
   imu.begin();
