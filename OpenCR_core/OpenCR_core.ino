@@ -129,9 +129,11 @@ static float   battery_valtage_raw = 0;
 static uint8_t battery_state   = BATTERY_POWER_OFF;
 
 //encoder counts
-volatile long encoderValueM0;
-volatile long encoderValueM1;
+//volatile long encoderValueM0;
+//volatile long encoderValueM1;
 
+int32_t encoderValueM0;
+int32_t encoderValueM1;
 
 // Encoder Counter prototypes
 void enc_aM0(void);
@@ -166,18 +168,23 @@ PololuQik2s12v10 qik(2, 3, 4);
 void setup()
 {
 
+  Serial.begin(9600);
+  
   qik.init();
   
-  pinMode(18, INPUT);
-  pinMode(19, INPUT);
-  pinMode(20, INPUT);
-  pinMode(21, INPUT);
+  pinMode(7, INPUT);//change to correct pin numbers
+  pinMode(8, INPUT);
+  pinMode(5, INPUT);
+  pinMode(6, INPUT);
 
-  attachInterrupt(digitalPinToInterrupt(18), enc_aM0, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(19), enc_bM0, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(20), enc_aM1, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(21), enc_bM1, CHANGE);
-  
+  attachInterrupt(digitalPinToInterrupt(7), enc_aM0, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(8), enc_bM0, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(5), enc_aM1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(6), enc_bM1, CHANGE);
+
+ // initialize encoder values
+  encoderValueM0 = 0;
+  encoderValueM1 = 0;
   
   // Initialize ROS node handle, advertise and subscribe the topics
   nh.initNode();
@@ -275,6 +282,11 @@ void loop()
 
   // Call all the callbacks waiting to be called at that point in time
   nh.spinOnce();
+  Serial.print("left ");
+  Serial.println(encoderValueM0);
+  Serial.print("right ");
+  Serial.println(encoderValueM1);
+  
 }
 
 /*******************************************************************************
@@ -352,6 +364,83 @@ void publishImuMsg(void)
   tfbroadcaster.sendTransform(tfs_msg);
 }
 
+
+/*******************************************************************************
+* Update Motor Encoder Values
+*******************************************************************************/
+void enc_aM0()
+{
+  if (digitalRead(19) == HIGH)
+  {
+    if (digitalRead(18) == HIGH)
+      encoderValueM0++;
+    else
+      encoderValueM0--;
+  }
+  else
+  {
+    if (digitalRead(18) == HIGH)
+      encoderValueM0--;
+    else
+      encoderValueM0++;
+  }
+}
+
+void enc_bM0()
+{
+  if (digitalRead(18) == HIGH)
+  {
+    if (digitalRead(19) == HIGH)
+      encoderValueM0--;
+    else
+      encoderValueM0++;
+  }
+  else
+  {
+    if (digitalRead(19) == HIGH)
+      encoderValueM0++;
+    else
+      encoderValueM0--;
+  }
+}
+
+void enc_aM1()
+{
+  if (digitalRead(21) == HIGH)
+  {
+    if (digitalRead(20) == HIGH)
+      encoderValueM1--;
+    else
+      encoderValueM1++;
+  }
+  else
+  {
+    if (digitalRead(20) == HIGH)
+      encoderValueM1++;
+    else
+      encoderValueM1--;
+  }
+}
+
+void enc_bM1()
+{
+  if (digitalRead(20) == HIGH)
+  {
+    if (digitalRead(21) == HIGH)
+      encoderValueM1++;
+    else
+      encoderValueM1--;
+  }
+  else
+  {
+    if (digitalRead(21) == HIGH)
+      encoderValueM1--;
+    else
+      encoderValueM1++;
+  }
+}
+
+
 /*******************************************************************************
 * Publish msgs (sensor_state: bumpers, cliffs, buttons, encoders, battery)
 *******************************************************************************/
@@ -364,16 +453,23 @@ void publishSensorStateMsg(void)
   sensor_state_msg.stamp = nh.now();
   sensor_state_msg.battery = checkVoltage();
 
-  dxl_comm_result = motor_driver.readEncoder(sensor_state_msg.left_encoder, sensor_state_msg.right_encoder);
+  //dxl_comm_result = motor_driver.readEncoder(sensor_state_msg.left_encoder, sensor_state_msg.right_encoder);
 
-  if (dxl_comm_result == true)
-  {
+  // **************** FOR ROBOT BASE ******************
+  // Motor 0 is the left and Motor 1 is the right
+  // **************************************************
+
+  sensor_state_msg.left_encoder = encoderValueM0;
+  sensor_state_msg.right_encoder = encoderValueM1;
+  
+  //if (dxl_comm_result == true)
+  //{
     sensor_state_pub.publish(&sensor_state_msg);
-  }
-  else
-  {
-    return;
-  }
+  //}
+  //else
+  //{
+  //  return;
+  //}
 
   current_tick = sensor_state_msg.left_encoder;
 
@@ -385,7 +481,7 @@ void publishSensorStateMsg(void)
 
   last_diff_tick_[LEFT] = current_tick - last_tick_[LEFT];
   last_tick_[LEFT] = current_tick;
-  last_rad_[LEFT] += TICK2RAD * (double)last_diff_tick_[LEFT];
+  last_rad_[LEFT] += TICK2RAD * (double)last_diff_tick_[LEFT]; //update TICK2RAD value
 
   current_tick = sensor_state_msg.right_encoder;
 
@@ -521,81 +617,6 @@ void updateTF(geometry_msgs::TransformStamped& odom_tf)
   odom_tf.transform.rotation = odom.pose.pose.orientation;
 }
 
-/*******************************************************************************
-* Update Motor Encoder Values
-*******************************************************************************/
-void enc_aM0()
-{
-  if (digitalRead(19) == HIGH)
-  {
-    if (digitalRead(18) == HIGH)
-      encoderValueM0++;
-    else
-      encoderValueM0--;
-  }
-  else
-  {
-    if (digitalRead(18) == HIGH)
-      encoderValueM0--;
-    else
-      encoderValueM0++;
-  }
-}
-
-void enc_bM0()
-{
-  if (digitalRead(18) == HIGH)
-  {
-    if (digitalRead(19) == HIGH)
-      encoderValueM0--;
-    else
-      encoderValueM0++;
-  }
-  else
-  {
-    if (digitalRead(19) == HIGH)
-      encoderValueM0++;
-    else
-      encoderValueM0--;
-  }
-}
-
-void enc_aM1()
-{
-  if (digitalRead(21) == HIGH)
-  {
-    if (digitalRead(20) == HIGH)
-      encoderValueM1--;
-    else
-      encoderValueM1++;
-  }
-  else
-  {
-    if (digitalRead(20) == HIGH)
-      encoderValueM1++;
-    else
-      encoderValueM1--;
-  }
-}
-
-void enc_bM1()
-{
-  if (digitalRead(20) == HIGH)
-  {
-    if (digitalRead(21) == HIGH)
-      encoderValueM1++;
-    else
-      encoderValueM1--;
-  }
-  else
-  {
-    if (digitalRead(21) == HIGH)
-      encoderValueM1--;
-    else
-      encoderValueM1++;
-  }
-}
-
 
 /*******************************************************************************
 * Receive remocon (RC100) data
@@ -686,9 +707,12 @@ void controlMotorSpeed(void)
     lin_vel2 = -LIMIT_X_MAX_VELOCITY;
   }
 
-  dxl_comm_result = motor_driver.speedControl((int64_t)lin_vel1, (int64_t)lin_vel2);
-  if (dxl_comm_result == false)
-    return;
+  
+  qik.setM0Speed(lin_vel1);
+  qik.setM1Speed(lin_vel2);
+  //dxl_comm_result = motor_driver.speedControl((int64_t)lin_vel1, (int64_t)lin_vel2);
+  //if (dxl_comm_result == false)
+  //  return;
 }
 
 /*******************************************************************************

@@ -46,22 +46,25 @@
 #define DRIVE_INFORMATION_PUBLISH_PERIOD 30   //hz
 #define DRIVE_TEST_PERIOD                30   //hz
 
-#define WHEEL_RADIUS                     0.033           // meter
-#define WHEEL_SEPARATION                 0.160           // meter (BURGER : 0.160, WAFFLE : 0.287)
-#define TURNING_RADIUS                   0.080           // meter (BURGER : 0.080, WAFFLE : 0.1435)
-#define ROBOT_RADIUS                     0.105           // meter (BURGER : 0.105, WAFFLE : 0.220)
+#define WHEEL_RADIUS                     0.127           // meter = 5 inches tour guide robot
+#define WHEEL_SEPARATION                 0.508 //tour guide robot           // meter (BURGER : 0.160, WAFFLE : 0.287)
+#define TURNING_RADIUS                   0.254  //tour guide robot         // meter (BURGER : 0.080, WAFFLE : 0.1435)
+#define ROBOT_RADIUS                     0.453   //0.508-0.055=0.453      //robot radius?  // meter (BURGER : 0.105, WAFFLE : 0.220)
 #define ENCODER_MIN                      -2147483648     // raw
 #define ENCODER_MAX                      2147483648      // raw
 
 #define LEFT                             0
 #define RIGHT                            1
 
-#define VELOCITY_CONSTANT_VALUE          1263.632956882  // V = r * w = r * RPM * 0.10472
+#define VELOCITY_CONSTANT_VALUE          328.345571473  // V = 0.127 * 0.229 * Goal RPM * 0.10472
+                                                         // Goal RPM = V * 328.345571473
+      
+                                                         //Turtlebot3 V = r * w = r * RPM * 0.10472
                                                          //   = 0.033 * 0.229 * Goal RPM * 0.10472
                                                          // Goal RPM = V * 1263.632956882
 
-#define MAX_LINEAR_VELOCITY              0.22   // m/s
-#define MAX_ANGULAR_VELOCITY             2.84   // rad/s
+#define MAX_LINEAR_VELOCITY              2.2   // m/s
+#define MAX_ANGULAR_VELOCITY             5.0 //2.84   // rad/s
 #define VELOCITY_STEP                    0.01   // m/s
 #define VELOCITY_LINEAR_X                0.01   // m/s
 #define VELOCITY_ANGULAR_Z               0.1    // rad/s
