@@ -37,7 +37,7 @@
 #include <IMU.h>
 #include <RC100.h>
 
-#include "turtlebot3_motor_driver.h"
+//#include "turtlebot3_motor_driver.h"
 
 #define CONTROL_MOTOR_SPEED_PERIOD       30   //hz
 #define IMU_PUBLISH_PERIOD               200  //hz
@@ -52,6 +52,9 @@
 #define ROBOT_RADIUS                     0.453   //0.508-0.055=0.453      //robot radius?  // meter (BURGER : 0.105, WAFFLE : 0.220)
 #define ENCODER_MIN                      -2147483648     // raw
 #define ENCODER_MAX                      2147483648      // raw
+
+//from turtlebot2_motor_driver.h
+#define LIMIT_X_MAX_VELOCITY            240
 
 #define LEFT                             0
 #define RIGHT                            1

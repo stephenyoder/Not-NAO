@@ -68,7 +68,7 @@ static uint32_t tTime[4];
 /*******************************************************************************
 * Declaration for motor
 *******************************************************************************/
-Turtlebot3MotorDriver motor_driver;
+//Turtlebot3MotorDriver motor_driver;
 bool init_encoder_[2]  = {false, false};
 int32_t last_diff_tick_[2];
 int32_t last_tick_[2];
@@ -154,7 +154,8 @@ Digital Pin 4 - RESET
 
 DO NOT connect the 5V output on the Arduino to the 5V output on the qik 2s12v10!
 */
-PololuQik2s12v10 qik(2, 3, 4);
+PololuQik2s12v10 qik(4);
+//PololuQik2s12v10 qik(2, 3, 4);
 // **************** FOR ROBOT BASE ******************
 // Motor 0 is the left and Motor 1 is the right
 // **************************************************
@@ -168,7 +169,7 @@ PololuQik2s12v10 qik(2, 3, 4);
 void setup()
 {
 
-  Serial.begin(9600);
+  //Serial.begin(115200);
   
   qik.init();
   
@@ -188,7 +189,7 @@ void setup()
   
   // Initialize ROS node handle, advertise and subscribe the topics
   nh.initNode();
-  nh.getHardware()->setBaud(115200);
+  //nh.getHardware()->setBaud(115200);
   nh.subscribe(cmd_vel_sub);
   nh.advertise(sensor_state_pub);
   nh.advertise(imu_pub);
@@ -227,7 +228,7 @@ void setup()
   prev_update_time = millis();
 
   pinMode(13, OUTPUT);
-
+  //Serial2.begin(115200);
   SerialBT2.begin(57600);
 
   setup_end = true;
@@ -282,10 +283,10 @@ void loop()
 
   // Call all the callbacks waiting to be called at that point in time
   nh.spinOnce();
-  Serial.print("left ");
-  Serial.println(encoderValueM0);
-  Serial.print("right ");
-  Serial.println(encoderValueM1);
+  //Serial.print("left ");
+  //Serial.println(encoderValueM0);
+  //Serial.print("right ");
+  //Serial.println(encoderValueM1);
   
 }
 
