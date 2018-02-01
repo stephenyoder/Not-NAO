@@ -59,7 +59,7 @@
 #define LEFT                             0
 #define RIGHT                            1
 
-#define VELOCITY_CONSTANT_VALUE          328.345571473  // V = 0.127 * 0.229 * Goal RPM * 0.10472
+#define VELOCITY_CONSTANT_VALUE           100 //328.345571473  // V = 0.127 * 0.229 * Goal RPM * 0.10472
                                                          // Goal RPM = V * 328.345571473
       
                                                          //Turtlebot3 V = r * w = r * RPM * 0.10472
@@ -74,7 +74,7 @@
 #define SCALE_VELOCITY_LINEAR_X          1
 #define SCALE_VELOCITY_ANGULAR_Z         1
 
-#define TICK2RAD                         0.001533981  // 0.087890625[deg] * 3.14159265359 / 180 = 0.001533981f
+#define TICK2RAD                        0.001839383 // 0.001533981  // 0.087890625[deg] * 3.14159265359 / 180 = 0.001533981f
 
 #define DEG2RAD(x)                       (x * 0.01745329252)  // *PI/180
 #define RAD2DEG(x)                       (x * 57.2957795131)  // *180/PI
