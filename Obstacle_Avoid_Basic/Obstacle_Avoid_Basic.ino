@@ -45,15 +45,17 @@ int sonarPins[SONAR_NUM][2] = { //Sensor object array
 */
 void setup() {
 
-//sets trigger & echo pins as outputs & inputs, respectively
-for(uint8_t i = 0; i < SONAR_NUM; i++){
-  pinMode(sonarPins[i][1], OUTPUT); //trigger pins
-  pinMode(sonarPins[i][2], INPUT);  //echo pins
-}
+  //sets trigger & echo pins as outputs & inputs, respectively
+  for(uint8_t i = 0; i < SONAR_NUM; i++){
+    pinMode(sonarPins[i][1], OUTPUT); //trigger pins
+    pinMode(sonarPins[i][2], INPUT);  //echo pins
+  }
 
   //qik.init();
   
   Serial.begin(115200);
+
+  delay(100);
   
 /*  // Initialize timmers for sonar array
   pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
@@ -72,15 +74,17 @@ void loop() {
   for (uint8_t i = 0; i < SONAR_NUM; i++) { //loops through all 10 sonar sensors
     //clear trigger 
     digitalWrite(sonarPins[i][1], LOW);
-    delayMicroseconds(1);
+    delayMicroseconds(5);
     
     // Sets the trigger on HIGH for 10 us
     digitalWrite(sonarPins[i][1], HIGH);
     delayMicroseconds(10);
-    digitalWrite(sonarPins[i][1], LOW);
-
     //reads echo and returns the sound wave travel time in us
     duration = pulseIn(sonarPins[i][2], HIGH);
+    delayMicroseconds(10);
+    // Sets the trigger LOW
+    digitalWrite(sonarPins[i][1], LOW);
+
 
     //calculate distance in cm.
     distance = duration * 0.034/2;  
@@ -89,15 +93,15 @@ void loop() {
       obstacle = true;
 
     if(obstacle) { //obstacle detected
-   
+      Serial.println("Obstacle detected");
     }
     else { //obstacle not detected
-     
+     Serial.println("Clear");
     }
       
     Serial.print("Object Distance: ");
     Serial.print(distance);
-    Serial.println(" [cm]");
+    Serial.println(" cm");
   }
 }
 
