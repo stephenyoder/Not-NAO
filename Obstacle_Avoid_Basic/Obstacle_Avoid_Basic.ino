@@ -11,7 +11,7 @@
 //unsigned int cm[SONAR_NUM];         // Where the ping distances are stored.
 //uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
 
-double distanceToStopCentimeters = 150; //distance at which we consider an obstacle in the way
+const double distanceToStopCentimeters = 80; //distance at which we consider an obstacle in the way
 long duration;
 double distance;
 boolean obstacle = false;
@@ -53,7 +53,7 @@ for(uint8_t i = 0; i < SONAR_NUM; i++){
 
   //qik.init();
   
-  Serial.begin(115200);
+  Serial.begin(9600);
   
 /*  // Initialize timmers for sonar array
   pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
@@ -72,7 +72,7 @@ void loop() {
   for (uint8_t i = 0; i < SONAR_NUM; i++) { //loops through all 10 sonar sensors
     //clear trigger 
     digitalWrite(sonarPins[i][1], LOW);
-    delayMicroseconds(1);
+    delayMicroseconds(2);
     
     // Sets the trigger on HIGH for 10 us
     digitalWrite(sonarPins[i][1], HIGH);
@@ -80,7 +80,7 @@ void loop() {
     digitalWrite(sonarPins[i][1], LOW);
 
     //reads echo and returns the sound wave travel time in us
-    duration = pulseIn(sonarPins[i][2], HIGH);
+    duration = digitalRead(sonarPins[i][2]); //pulseIn(sonarPins[i][2], HIGH);
 
     //calculate distance in cm.
     distance = duration * 0.034/2;  
@@ -89,15 +89,18 @@ void loop() {
       obstacle = true;
 
     if(obstacle) { //obstacle detected
-   
+        Serial.println("Obstacle detected");
+        //add code to stop motors
     }
     else { //obstacle not detected
-     
+        
     }
       
     Serial.print("Object Distance: ");
     Serial.print(distance);
-    Serial.println(" [cm]");
+    Serial.print(" [cm]");
+    Serial.print(sonarPins[i][1]);
+    Serial.println(sonarPins[i][2]);
   }
 }
 
