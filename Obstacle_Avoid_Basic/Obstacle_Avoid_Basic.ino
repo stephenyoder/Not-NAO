@@ -3,6 +3,8 @@ int echoPin = 51;
 
 long duration;
 double distance;
+boolean obstacle = false;
+double distanceToStopCentimeters = 70;
 
 void setup() {
   for(int i = 0; i <= 16; i=i+2){
@@ -33,6 +35,14 @@ void loop() {
     Serial.println(" [cm] ");
     //Serial.print(trigPin + i);
     //Serial.println(echoPin + i);
+
+    if(distance <= distanceToStopCentimeters)
+      obstacle = true;
+
+    if(obstacle)
+      Serial.println("Object detected");
+    else
+      Serial.println("Clear");
   }
   digitalWrite(10, LOW);
   delayMicroseconds(2);
@@ -47,5 +57,15 @@ void loop() {
   // Prints the distance on the Serial Monitor
   Serial.print("Distance: ");
   Serial.print(distance);
-  Serial.println(" [cm]");
+  Serial.println(" [cm] ");
+  
+  if(distance <= distanceToStopCentimeters)
+    obstacle = true;
+
+  if(obstacle) {
+    Serial.println("Object detected");
+  }
+  else {
+    Serial.println("Clear");
+  }
 }
