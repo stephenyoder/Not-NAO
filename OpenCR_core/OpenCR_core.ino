@@ -173,16 +173,16 @@ void setup()
   
   qik.init();
   
-  pinMode(7, INPUT);//change to correct pin numbers
+   pinMode(7, INPUT);//change to correct pin numbers
   pinMode(8, INPUT);
-  pinMode(5, INPUT);
-  pinMode(6, INPUT);
+  pinMode(2, INPUT);
+  pinMode(3, INPUT);
 
   attachInterrupt(digitalPinToInterrupt(7), enc_aM0, CHANGE);
   attachInterrupt(digitalPinToInterrupt(8), enc_bM0, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(5), enc_aM1, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(6), enc_bM1, CHANGE);
-
+  attachInterrupt(digitalPinToInterrupt(2), enc_aM1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(3), enc_bM1, CHANGE);
+  
  // initialize encoder values
   encoderValueM0 = 0;
   encoderValueM1 = 0;
@@ -371,16 +371,16 @@ void publishImuMsg(void)
 *******************************************************************************/
 void enc_aM0()
 {
-  if (digitalRead(19) == HIGH)
+  if (digitalRead(8) == HIGH)
   {
-    if (digitalRead(18) == HIGH)
+    if (digitalRead(7) == HIGH)
       encoderValueM0++;
     else
       encoderValueM0--;
   }
   else
   {
-    if (digitalRead(18) == HIGH)
+    if (digitalRead(7) == HIGH)
       encoderValueM0--;
     else
       encoderValueM0++;
@@ -389,16 +389,16 @@ void enc_aM0()
 
 void enc_bM0()
 {
-  if (digitalRead(18) == HIGH)
+  if (digitalRead(7) == HIGH)
   {
-    if (digitalRead(19) == HIGH)
+    if (digitalRead(8) == HIGH)
       encoderValueM0--;
     else
       encoderValueM0++;
   }
   else
   {
-    if (digitalRead(19) == HIGH)
+    if (digitalRead(8) == HIGH)
       encoderValueM0++;
     else
       encoderValueM0--;
@@ -407,16 +407,16 @@ void enc_bM0()
 
 void enc_aM1()
 {
-  if (digitalRead(21) == HIGH)
+  if (digitalRead(3) == HIGH)
   {
-    if (digitalRead(20) == HIGH)
+    if (digitalRead(2) == HIGH)
       encoderValueM1--;
     else
       encoderValueM1++;
   }
   else
   {
-    if (digitalRead(20) == HIGH)
+    if (digitalRead(2) == HIGH)
       encoderValueM1++;
     else
       encoderValueM1--;
@@ -425,21 +425,22 @@ void enc_aM1()
 
 void enc_bM1()
 {
-  if (digitalRead(20) == HIGH)
+  if (digitalRead(2) == HIGH)
   {
-    if (digitalRead(21) == HIGH)
+    if (digitalRead(3) == HIGH)
       encoderValueM1++;
     else
       encoderValueM1--;
   }
   else
   {
-    if (digitalRead(21) == HIGH)
+    if (digitalRead(3) == HIGH)
       encoderValueM1--;
     else
       encoderValueM1++;
   }
 }
+
 
 
 /*******************************************************************************
@@ -460,8 +461,8 @@ void publishSensorStateMsg(void)
   // Motor 0 is the left and Motor 1 is the right
   // **************************************************
 
-  sensor_state_msg.left_encoder = encoderValueM0;
-  sensor_state_msg.right_encoder = encoderValueM1;
+  sensor_state_msg.left_encoder = -1*encoderValueM0; //robot thought it was going opposite directionu
+  sensor_state_msg.right_encoder = -1*encoderValueM1;
   
   //if (dxl_comm_result == true)
   //{
@@ -686,7 +687,7 @@ void controlMotorSpeed(void)
   double lin_vel2;
 
   wheel_speed_cmd[LEFT]  = goal_linear_velocity - (goal_angular_velocity * WHEEL_SEPARATION / 2);
-  wheel_speed_cmd[RIGHT] = goal_linear_velocity + (goal_angular_velocity * WHEEL_SEPARATION / 2);
+  wheel_speed_cmd[RIGHT] = -1 * (goal_linear_velocity + (goal_angular_velocity * WHEEL_SEPARATION / 2));
 
   lin_vel1 = wheel_speed_cmd[LEFT] * VELOCITY_CONSTANT_VALUE;
   if (lin_vel1 > LIMIT_X_MAX_VELOCITY)

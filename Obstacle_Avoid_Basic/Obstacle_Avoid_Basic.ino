@@ -45,15 +45,21 @@ int sonarPins[SONAR_NUM][2] = { //Sensor object array
 */
 void setup() {
 
-//sets trigger & echo pins as outputs & inputs, respectively
-for(uint8_t i = 0; i < SONAR_NUM; i++){
-  pinMode(sonarPins[i][1], OUTPUT); //trigger pins
-  pinMode(sonarPins[i][2], INPUT);  //echo pins
-}
+  //sets trigger & echo pins as outputs & inputs, respectively
+  for(uint8_t i = 0; i < SONAR_NUM; i++){
+    pinMode(sonarPins[i][1], OUTPUT); //trigger pins
+    pinMode(sonarPins[i][2], INPUT);  //echo pins
+  }
 
   //qik.init();
   
+<<<<<<< HEAD
   Serial.begin(9600);
+=======
+  Serial.begin(115200);
+
+  delay(100);
+>>>>>>> 79f4ec3491e9b0bd30e7d7cce4e38e6aa4ebe027
   
 /*  // Initialize timmers for sonar array
   pingTimer[0] = millis() + 75;           // First ping starts at 75ms, gives time for the Arduino to chill before starting.
@@ -72,15 +78,25 @@ void loop() {
   for (uint8_t i = 0; i < SONAR_NUM; i++) { //loops through all 10 sonar sensors
     //clear trigger 
     digitalWrite(sonarPins[i][1], LOW);
+<<<<<<< HEAD
     delayMicroseconds(2);
+=======
+    delayMicroseconds(5);
+>>>>>>> 79f4ec3491e9b0bd30e7d7cce4e38e6aa4ebe027
     
     // Sets the trigger on HIGH for 10 us
     digitalWrite(sonarPins[i][1], HIGH);
     delayMicroseconds(10);
+    //reads echo and returns the sound wave travel time in us
+<<<<<<< HEAD
+    duration = digitalRead(sonarPins[i][2]); //pulseIn(sonarPins[i][2], HIGH);
+=======
+    duration = pulseIn(sonarPins[i][2], HIGH);
+    delayMicroseconds(10);
+    // Sets the trigger LOW
     digitalWrite(sonarPins[i][1], LOW);
 
-    //reads echo and returns the sound wave travel time in us
-    duration = digitalRead(sonarPins[i][2]); //pulseIn(sonarPins[i][2], HIGH);
+>>>>>>> 79f4ec3491e9b0bd30e7d7cce4e38e6aa4ebe027
 
     //calculate distance in cm.
     distance = duration * 0.034/2;  
@@ -89,18 +105,29 @@ void loop() {
       obstacle = true;
 
     if(obstacle) { //obstacle detected
+<<<<<<< HEAD
         Serial.println("Obstacle detected");
         //add code to stop motors
     }
     else { //obstacle not detected
         
+=======
+      Serial.println("Obstacle detected");
+    }
+    else { //obstacle not detected
+     Serial.println("Clear");
+>>>>>>> 79f4ec3491e9b0bd30e7d7cce4e38e6aa4ebe027
     }
       
     Serial.print("Object Distance: ");
     Serial.print(distance);
+<<<<<<< HEAD
     Serial.print(" [cm]");
     Serial.print(sonarPins[i][1]);
     Serial.println(sonarPins[i][2]);
+=======
+    Serial.println(" cm");
+>>>>>>> 79f4ec3491e9b0bd30e7d7cce4e38e6aa4ebe027
   }
 }
 
