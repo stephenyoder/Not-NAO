@@ -8,16 +8,33 @@ double distanceToStopCentimeters = 70;
 
 void setup() {
   for(int i = 0; i <= 16; i=i+2){
-    pinMode(trigPin + i, OUTPUT);
-    pinMode(echoPin + i, INPUT);
+    initializeSensors(i);
   }
-  pinMode(10, OUTPUT);
-  pinMode(11, INPUT);
+  initializeSensors(10, 11);
   Serial.begin(9600);
 }
 
 void loop() {
   for(int i = 0; i <= 16; i=i+2){
+    readSensorData(i);
+    printSensorData(i, distance);
+  }
+  
+  readSensorData(10, 11);
+  printSensorData(10, 11, distance);
+}
+
+void initializeSensors(int i){
+    pinMode(trigPin + i, OUTPUT);
+    pinMode(echoPin + i, INPUT);
+}
+
+void initializeSensors(int trig, int echo){
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+}
+  
+void readSensorData(int i){
     // Clears the trigPin
     digitalWrite(trigPin + i, LOW);
     delayMicroseconds(2);
@@ -29,8 +46,12 @@ void loop() {
     duration = pulseIn(echoPin + i, HIGH);
     // Calculating the distance
     distance= duration*0.034/2; //cm
-    // Prints the distance on the Serial Monitor
-    Serial.print("Distance: ");
+}
+
+void printSensorData(int i, double dist){    
+    Serial.print("Sensor");
+    Serial.print(i);
+    Serial.print(" Distance: ");
     Serial.print(distance);
     Serial.println(" [cm] ");
     //Serial.print(trigPin + i);
@@ -44,18 +65,23 @@ void loop() {
     else
       Serial.println("Clear");
   }
-  digitalWrite(10, LOW);
+
+void readSensorData(int pin1, int pin2){
+  digitalWrite(pin1, LOW);
   delayMicroseconds(2);
   // Sets the trigPin on HIGH state for 10 micro seconds
-  digitalWrite(10, HIGH);
+  digitalWrite(pin1, HIGH);
   delayMicroseconds(10);
-  digitalWrite(10, LOW);
+  digitalWrite(pin1, LOW);
   // Reads the echoPin, returns the sound wave travel time in microseconds
-  duration = pulseIn(11, HIGH);
+  duration = pulseIn(pin2, HIGH);
   // Calculating the distance
   distance= duration*0.034/2; //cm
+}
+
+void printSensorData(int pin1, int pin2, double dist){
   // Prints the distance on the Serial Monitor
-  Serial.print("Distance: ");
+  Serial.print("Sensor9 Distance: ");
   Serial.print(distance);
   Serial.println(" [cm] ");
   
@@ -69,3 +95,5 @@ void loop() {
     Serial.println("Clear");
   }
 }
+
+
