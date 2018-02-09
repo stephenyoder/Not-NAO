@@ -59,7 +59,7 @@
 #define LEFT                             0
 #define RIGHT                            1
 
-#define VELOCITY_CONSTANT_VALUE           100 //328.345571473  // V = 0.127 * 0.229 * Goal RPM * 0.10472
+#define VELOCITY_CONSTANT_VALUE          50 //100 //328.345571473  // V = 0.127 * 0.229 * Goal RPM * 0.10472
                                                          // Goal RPM = V * 328.345571473
       
                                                          //Turtlebot3 V = r * w = r * RPM * 0.10472

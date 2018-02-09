@@ -141,7 +141,7 @@ void enc_bM0(void);
 void enc_aM1(void);
 void enc_bM1(void);
 
-
+#define BDPIN_LED_USER_3        24
 /*
 Required connections between Arduino and qik 2s12v10:
 
@@ -178,6 +178,8 @@ void setup()
   pinMode(2, INPUT);
   pinMode(3, INPUT);
 
+  pinMode(BDPIN_LED_USER_3,OUTPUT);
+
   attachInterrupt(digitalPinToInterrupt(7), enc_aM0, CHANGE);
   attachInterrupt(digitalPinToInterrupt(8), enc_bM0, CHANGE);
   attachInterrupt(digitalPinToInterrupt(2), enc_aM1, CHANGE);
@@ -193,7 +195,7 @@ void setup()
   nh.subscribe(cmd_vel_sub);
   nh.advertise(sensor_state_pub);
   nh.advertise(imu_pub);
-  nh.advertise(cmd_vel_rc100_pub);
+ // nh.advertise(cmd_vel_rc100_pub);
   nh.advertise(odom_pub);
   nh.advertise(joint_states_pub);
   tfbroadcaster.init(nh);
@@ -207,7 +209,7 @@ void setup()
   imu.begin();
 
   // Setting for ROBOTIS RC100 remote controller and cmd_vel
-  remote_controller.begin(1);  // 57600bps baudrate for RC100 control
+  ///remote_controller.begin(1);  // 57600bps baudrate for RC100 control
 
   cmd_vel_rc100_msg.linear.x  = 0.0;
   cmd_vel_rc100_msg.angular.z = 0.0;
@@ -229,7 +231,7 @@ void setup()
 
   pinMode(13, OUTPUT);
   //Serial2.begin(115200);
-  SerialBT2.begin(57600);
+  //SerialBT2.begin(57600);
 
   setup_end = true;
 }
@@ -239,17 +241,19 @@ void setup()
 *******************************************************************************/
 void loop()
 {
-  receiveRemoteControlData();
+ // receiveRemoteControlData();
 
+ 
   if ((millis()-tTime[0]) >= (1000 / CONTROL_MOTOR_SPEED_PERIOD))
   {
     controlMotorSpeed();
     tTime[0] = millis();
+ // qik.getErrors();
   }
 
   if ((millis()-tTime[1]) >= (1000 / CMD_VEL_PUBLISH_PERIOD))
   {
-    cmd_vel_rc100_pub.publish(&cmd_vel_rc100_msg);
+   // cmd_vel_rc100_pub.publish(&cmd_vel_rc100_msg);
     tTime[1] = millis();
   }
 
