@@ -4,7 +4,7 @@ byte cmd[5]; // serial command buffer
 
 PololuQik::PololuQik(unsigned char resetPin) //: SoftwareSerial(receivePin, transmitPin)
 {
-	Serial2.begin(115200);
+  //Serial2.begin(115200);
   _resetPin = resetPin;
 }
 
@@ -17,6 +17,7 @@ void PololuQik::init()//long speed /* = 9600 */)
   pinMode(_resetPin, INPUT); // return to high-impedance input (reset is internally pulled up on qik)
   delay(10);
 
+  Serial2.begin(9600);//was 115200
   //begin(speed);
   Serial2.write(0xAA); // allow qik to autodetect baud rate
 }
