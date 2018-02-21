@@ -6,6 +6,9 @@ double distance;
 boolean obstacle = false;
 double distanceToStopCentimeters = 70;
 
+//sonar arrays on the side are 10,11 & 14,15
+//sonar arrays next to side are 50,51 & 16,17
+
 void setup() {
   for(int i = 0; i <= 16; i=i+2){
     initializeSensors(i);
@@ -56,10 +59,11 @@ void printSensorData(int i, double dist){
     Serial.println(" [cm] ");
     //Serial.print(trigPin + i);
     //Serial.println(echoPin + i);
+}
 
+boolean obstacleDetected(){
     if(distance <= distanceToStopCentimeters)
       obstacle = true;
-
     if(obstacle)
       Serial.println("Object detected");
     else
@@ -84,16 +88,6 @@ void printSensorData(int pin1, int pin2, double dist){
   Serial.print("Sensor9 Distance: ");
   Serial.print(distance);
   Serial.println(" [cm] ");
-  
-  if(distance <= distanceToStopCentimeters)
-    obstacle = true;
-
-  if(obstacle) {
-    Serial.println("Object detected");
-  }
-  else {
-    Serial.println("Clear");
-  }
 }
 
 

@@ -17,6 +17,7 @@
 /* Authors: Yoonseok Pyo, Leon Jung, Darby Lim, HanCheol Cho */
 
 #include "OpenCR_core_config.h"
+#include "pitches.h"
 
 //#include <SoftwareSerial.h>
 #include <PololuQik.h>
@@ -160,17 +161,45 @@ PololuQik2s12v10 qik(4);
 // Motor 0 is the left and Motor 1 is the right
 // **************************************************
 
+//******Initializes built-in buzzer*******
+#define BDPIN_BUZZER 31
 
+int beep = NOTE_C4;
+int noteDuration = 200;
+//****************************************
 
+//*******sonar array parameters********************
+int trigPin = 50;
+int echoPin = 51;
+
+long duration;
+double distance;
+boolean obstacle = false;
+double distanceToStopCentimeters = 70;
+//**************************************************
 
 /*******************************************************************************
 * Setup function
 *******************************************************************************/
-void setup()
-{
+void setup(){
 
-  //Serial.begin(115200);
-  
+  Serial.begin(115200);
+
+ //tests buzzer that is to be used for obstacle avoidance. buzzer should beep twice then turn off
+//*************************************************
+tone(BDPIN_BUZZER, beep, noteDuration);
+delay(noteDuration / 2);
+tone(BDPIN_BUZZER, beep, noteDuration);
+noTone(BDPIN_BUZZER);
+//*************************************************
+
+//**************initializes sonar array************
+for(int i = 0; i <= 16; i=i+2){
+    initializeSensors(i);
+  }
+  initializeSensors(10, 11);
+//*************************************************
+
   qik.init();
   
    pinMode(7, INPUT);//change to correct pin numbers
@@ -243,12 +272,29 @@ void loop()
 {
  // receiveRemoteControlData();
 
- 
+//sonar arrays on the side are 10,11 & 14,15
+//sonar arrays next to side are 50,51 & 16,17
+
+  for(int i = 0; i <= 16; i=i+2){
+    readSensorData(i);
+    printSensorData(i, distance);
+  }
+  
+  readSensorData(10, 11);
+  printSensorData(10, 11, distance);
+
   if ((millis()-tTime[0]) >= (1000 / CONTROL_MOTOR_SPEED_PERIOD))
   {
+    if(!obstacle){
     controlMotorSpeed();
     tTime[0] = millis();
  // qik.getErrors();
+ }
+    else{
+      tone(BDPIN_BUZZER, beep, noteDuration);
+      delay(noteDuration / 2);
+      noTone(BDPIN_BUZZER);
+    }
   }
 
   if ((millis()-tTime[1]) >= (1000 / CMD_VEL_PUBLISH_PERIOD))
@@ -293,6 +339,8 @@ void loop()
   //Serial.println(encoderValueM1);
   
 }
+
+//**********************end of main loop****************************************
 
 /*******************************************************************************
 * Callback function for cmd_vel msg
@@ -1147,3 +1195,71 @@ void setPowerOff()
 {
   digitalWrite(BDPIN_DXL_PWR_EN, LOW);
 }
+
+//**********functions for sonar array****************
+
+void initializeSensors(int i){
+    pinMode(trigPin + i, OUTPUT);
+    pinMode(echoPin + i, INPUT);
+}
+
+void initializeSensors(int trig, int echo){
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+}
+  
+void readSensorData(int i){
+    // Clears the trigPin
+    digitalWrite(trigPin + i, LOW);
+    delayMicroseconds(2);
+    // Sets the trigPin on HIGH state for 10 micro seconds
+    digitalWrite(trigPin + i, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin + i, LOW);
+    // Reads the echoPin, returns the sound wave travel time in microseconds
+    duration = pulseIn(echoPin + i, HIGH);
+    // Calculating the distance
+    distance= duration*0.034/2; //cm
+}
+
+void printSensorData(int i, double dist){    
+    Serial.print("Sensor");
+    Serial.print(i);
+    Serial.print(" Distance: ");
+    Serial.print(distance);
+    Serial.println(" [cm] ");
+    //Serial.print(trigPin + i);
+    //Serial.println(echoPin + i);
+}
+
+boolean obstacleDetected(){
+    if(distance <= distanceToStopCentimeters)
+      obstacle = true;
+    if(obstacle)
+      Serial.println("Object detected");
+    else
+      Serial.println("Clear");
+
+    return obstacle;
+  }
+
+void readSensorData(int pin1, int pin2){
+  digitalWrite(pin1, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(pin1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(pin1, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(pin2, HIGH);
+  // Calculating the distance
+  distance= duration*0.034/2; //cm
+}
+
+void printSensorData(int pin1, int pin2, double dist){
+  // Prints the distance on the Serial Monitor
+  Serial.print("Sensor9 Distance: ");
+  Serial.print(distance);
+  Serial.println(" [cm] ");
+}
+///************end of functions for sonar array*********************
