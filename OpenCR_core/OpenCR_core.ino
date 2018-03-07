@@ -18,6 +18,7 @@
 
 #include "OpenCR_core_config.h"
 #include "pitches.h"
+#include <SimpleTimer.h>
 
 //#include <SoftwareSerial.h>
 #include <PololuQik.h>
@@ -178,6 +179,10 @@ boolean obstacle = false;
 double distanceToStopCentimeters = 70;
 //**************************************************
 
+//******rotation speed*******
+const double ROTATION_VELOCITY = 35.0;
+//****************************************
+
 /*******************************************************************************
 * Setup function
 *******************************************************************************/
@@ -202,7 +207,7 @@ for(int i = 0; i <= 16; i=i+2){
 
   qik.init();
   
-   pinMode(7, INPUT);//change to correct pin numbers
+  pinMode(7, INPUT);//change to correct pin numbers
   pinMode(8, INPUT);
   pinMode(2, INPUT);
   pinMode(3, INPUT);
@@ -270,18 +275,13 @@ for(int i = 0; i <= 16; i=i+2){
 *******************************************************************************/
 void loop()
 {
+  resetObstacle(); //every loop iteration, set reset obstacle to false. If an obstacle is detected in the following lines it obstacle will become true
+  setTimer(1000, sonarSweep(), 99999999);
+ //int setTimer(long d, timer_callback f, int n) Call sonarSweep every 1 second for 99999999 times
  // receiveRemoteControlData();
 
 //sonar arrays on the side are 10,11 & 14,15
 //sonar arrays next to side are 50,51 & 16,17
-
-  for(int i = 0; i <= 16; i=i+2){
-    readSensorData(i);
-    printSensorData(i, distance);
-  }
-  
-  readSensorData(10, 11);
-  printSensorData(10, 11, distance);
 
   if ((millis()-tTime[0]) >= (1000 / CONTROL_MOTOR_SPEED_PERIOD))
   {
@@ -291,6 +291,7 @@ void loop()
  // qik.getErrors();
  }
     else{
+      stopMotor();
       tone(BDPIN_BUZZER, beep, noteDuration);
       delay(noteDuration / 2);
       noTone(BDPIN_BUZZER);
@@ -725,6 +726,57 @@ void receiveRemoteControlData(void)
     goal_linear_velocity  = cmd_vel_rc100_msg.linear.x;
     goal_angular_velocity = cmd_vel_rc100_msg.angular.z;
   }
+}
+
+/******************************************************************************
+* Rotate robot clockwise
+*******************************************************************************/
+void rotateClockwise(void){
+  
+  if(!(last_velocity_[RIGHT] == 0 && last_velocity_[LEFT] == 0)){
+    stopMotor();
+  }
+  while(obstacle){  
+    resetObstacle();
+    qik.setM0Speed(ROTATION_VELOCITY);
+    qik.setM1Speed(-ROTATION_VELOCITY);
+    sonarSweep(); 
+  } 
+
+  stopMotor();
+}
+
+/******************************************************************************
+* Rotate robot counterclockwise
+*******************************************************************************/
+void rotateCounterClockwise(void){
+  
+  if(!(last_velocity_[RIGHT] == 0 && last_velocity_[LEFT] == 0)){
+    stopMotor();
+  }
+  while(obstacle){
+    resetObstacle();
+    qik.setM0Speed(-ROTATION_VELOCITY);
+    qik.setM1Speed(ROTATION_VELOCITY);
+    sonarSweep();
+  }
+}
+
+/******************************************************************************
+* Slow down robot until stop
+*******************************************************************************/
+void stopMotor(void){
+  //use code from function below to 
+
+  //gradually slow down motors
+  for(int i = 0; i < 3; i++){
+    qik.setM0Speed(last_velocity_[LEFT] / 2);
+    qik.setM1Speed(last_velocity_[RIGHT] / 2);
+    delay(125);
+  }
+
+  qik.setM0Speed(0.0);
+  qik.setM1Speed(0.0);
 }
 
 /*******************************************************************************
@@ -1232,6 +1284,22 @@ void printSensorData(int i, double dist){
     //Serial.println(echoPin + i);
 }
 
+void sonarSweep(){
+  for(int i = 0; i <= 16; i=i+2){
+    readSensorData(i);
+    printSensorData(i, distance);
+    if(obstacleDetected())
+      break;
+  }
+  
+  readSensorData(10, 11);
+  printSensorData(10, 11, distance);
+  }
+  
+  readSensorData(10, 11);
+  printSensorData(10, 11, distance);
+}
+
 boolean obstacleDetected(){
     if(distance <= distanceToStopCentimeters)
       obstacle = true;
@@ -1242,6 +1310,10 @@ boolean obstacleDetected(){
 
     return obstacle;
   }
+
+void resetObstacle(){
+  obstacle = false;
+}
 
 void readSensorData(int pin1, int pin2){
   digitalWrite(pin1, LOW);
