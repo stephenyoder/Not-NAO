@@ -18,7 +18,7 @@
 
 #include "OpenCR_core_config.h"
 #include "pitches.h"
-#include <SimpleTimer.h>
+#include "SimpleTimer.h"
 
 //#include <SoftwareSerial.h>
 #include <PololuQik.h>
