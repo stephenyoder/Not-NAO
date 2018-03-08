@@ -182,6 +182,88 @@ double distanceToStopCentimeters = 70;
 //******rotation speed*******
 const double ROTATION_VELOCITY = 35.0;
 //****************************************
+//**********functions for sonar array****************
+
+void initializeSensors(int i){
+    pinMode(trigPin + i, OUTPUT);
+    pinMode(echoPin + i, INPUT);
+}
+
+void initializeSensors(int trig, int echo){
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+}
+  
+void readSensorData(int i){
+    // Clears the trigPin
+    digitalWrite(trigPin + i, LOW);
+    delayMicroseconds(2);
+    // Sets the trigPin on HIGH state for 10 micro seconds
+    digitalWrite(trigPin + i, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin + i, LOW);
+    // Reads the echoPin, returns the sound wave travel time in microseconds
+    duration = pulseIn(echoPin + i, HIGH);
+    // Calculating the distance
+    distance= duration*0.034/2; //cm
+}
+
+void printSensorData(int pin1, int pin2, double dist){
+  // Prints the distance on the Serial Monitor
+  Serial.print("Sensor9 Distance: ");
+  Serial.print(distance);
+  Serial.println(" [cm] ");
+}
+
+void printSensorData(int i, double dist){    
+    Serial.print("Sensor");
+    Serial.print(i);
+    Serial.print(" Distance: ");
+    Serial.print(distance);
+    Serial.println(" [cm] ");
+    //Serial.print(trigPin + i);
+    //Serial.println(echoPin + i);
+}
+void readSensorData(int pin1, int pin2){
+  digitalWrite(pin1, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(pin1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(pin1, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(pin2, HIGH);
+  // Calculating the distance
+  distance= duration*0.034/2; //cm
+}
+
+boolean obstacleDetected(){
+    if(distance <= distanceToStopCentimeters)
+      obstacle = true;
+    if(obstacle)
+      Serial.println("Object detected");
+    else
+      Serial.println("Clear");
+
+    return obstacle;
+  }
+void sonarSweep(){
+  for(int i = 0; i <= 16; i=i+2){
+    readSensorData(i);
+    printSensorData(i, distance);
+    if(obstacleDetected())
+      break;
+  }
+  
+  readSensorData(10, 11);
+  printSensorData(10, 11, distance);
+  }
+
+void resetObstacle(){
+  obstacle = false;
+}
+
+///************end of functions for sonar array*********************
 
 /*******************************************************************************
 * Setup function
@@ -268,6 +350,8 @@ for(int i = 0; i <= 16; i=i+2){
   //SerialBT2.begin(57600);
 
   setup_end = true;
+  //SimpleTimer timer;
+  //int timerID;
 }
 
 /*******************************************************************************
@@ -276,8 +360,9 @@ for(int i = 0; i <= 16; i=i+2){
 void loop()
 {
   resetObstacle(); //every loop iteration, set reset obstacle to false. If an obstacle is detected in the following lines it obstacle will become true
-  setTimer(1000, sonarSweep(), 99999999);
- //int setTimer(long d, timer_callback f, int n) Call sonarSweep every 1 second for 99999999 times
+  SimpleTimer timer;
+  int timerID = timer.setInterval(1000, sonarSweep); //Call sonarSweep every 1 second
+
  // receiveRemoteControlData();
 
 //sonar arrays on the side are 10,11 & 14,15
@@ -1247,91 +1332,3 @@ void setPowerOff()
 {
   digitalWrite(BDPIN_DXL_PWR_EN, LOW);
 }
-
-//**********functions for sonar array****************
-
-void initializeSensors(int i){
-    pinMode(trigPin + i, OUTPUT);
-    pinMode(echoPin + i, INPUT);
-}
-
-void initializeSensors(int trig, int echo){
-  pinMode(trig, OUTPUT);
-  pinMode(echo, INPUT);
-}
-  
-void readSensorData(int i){
-    // Clears the trigPin
-    digitalWrite(trigPin + i, LOW);
-    delayMicroseconds(2);
-    // Sets the trigPin on HIGH state for 10 micro seconds
-    digitalWrite(trigPin + i, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin + i, LOW);
-    // Reads the echoPin, returns the sound wave travel time in microseconds
-    duration = pulseIn(echoPin + i, HIGH);
-    // Calculating the distance
-    distance= duration*0.034/2; //cm
-}
-
-void printSensorData(int i, double dist){    
-    Serial.print("Sensor");
-    Serial.print(i);
-    Serial.print(" Distance: ");
-    Serial.print(distance);
-    Serial.println(" [cm] ");
-    //Serial.print(trigPin + i);
-    //Serial.println(echoPin + i);
-}
-
-void sonarSweep(){
-  for(int i = 0; i <= 16; i=i+2){
-    readSensorData(i);
-    printSensorData(i, distance);
-    if(obstacleDetected())
-      break;
-  }
-  
-  readSensorData(10, 11);
-  printSensorData(10, 11, distance);
-  }
-  
-  readSensorData(10, 11);
-  printSensorData(10, 11, distance);
-}
-
-boolean obstacleDetected(){
-    if(distance <= distanceToStopCentimeters)
-      obstacle = true;
-    if(obstacle)
-      Serial.println("Object detected");
-    else
-      Serial.println("Clear");
-
-    return obstacle;
-  }
-
-void resetObstacle(){
-  obstacle = false;
-}
-
-void readSensorData(int pin1, int pin2){
-  digitalWrite(pin1, LOW);
-  delayMicroseconds(2);
-  // Sets the trigPin on HIGH state for 10 micro seconds
-  digitalWrite(pin1, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(pin1, LOW);
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  duration = pulseIn(pin2, HIGH);
-  // Calculating the distance
-  distance= duration*0.034/2; //cm
-}
-
-void printSensorData(int pin1, int pin2, double dist){
-  // Prints the distance on the Serial Monitor
-  Serial.print("Sensor9 Distance: ");
-  Serial.print(distance);
-  Serial.println(" [cm] ");
-}
-///************end of functions for sonar array*********************
