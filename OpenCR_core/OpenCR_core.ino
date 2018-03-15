@@ -176,7 +176,7 @@ int echoPin = 51;
 long duration;
 double distance;
 boolean obstacle = false;
-double distanceToStopCentimeters = 70;
+const double DISTANCE_TO_STOP_CM = 70;
 //**************************************************
 
 //******rotation speed*******
@@ -205,7 +205,7 @@ void readSensorData(int i){
     // Reads the echoPin, returns the sound wave travel time in microseconds
     duration = pulseIn(echoPin + i, HIGH);
     // Calculating the distance
-    distance= duration*0.034/2; //cm
+    distance = duration*0.034/2; //cm
 }
 
 void printSensorData(int pin1, int pin2, double dist){
@@ -238,17 +238,19 @@ void readSensorData(int pin1, int pin2){
 }
 
 boolean obstacleDetected(){
-    if(distance <= distanceToStopCentimeters)
+    if(distance <= DISTANCE_TO_STOP_CM){
       obstacle = true;
-    if(obstacle)
       Serial.println("Object detected");
-    else
+    }
+    else{ //obstacle remains false by default
       Serial.println("Clear");
+      obstacle = false;
+    }
 
     return obstacle;
   }
 void sonarSweep(){
-  for(int i = 0; i <= 16; i=i+2){
+  for(int i = 0; i <= 12; i=i+2){ //excludes the two sensors at the bottom
     readSensorData(i);
     printSensorData(i, distance);
     if(obstacleDetected())
@@ -360,8 +362,11 @@ for(int i = 0; i <= 16; i=i+2){
 void loop()
 {
   resetObstacle(); //every loop iteration, set reset obstacle to false. If an obstacle is detected in the following lines it obstacle will become true
+  /*
   SimpleTimer timer;
   int timerID = timer.setInterval(1000, sonarSweep); //Call sonarSweep every 1 second
+  */
+  sonarSweep();
 
  // receiveRemoteControlData();
 
@@ -380,6 +385,11 @@ void loop()
       tone(BDPIN_BUZZER, beep, noteDuration);
       delay(noteDuration / 2);
       noTone(BDPIN_BUZZER);
+/*    Need some function to keep track of time so robot does not rotate infinitely
+      while(obstacle){
+        rotateClockwise();
+      }
+      */
     }
   }
 
