@@ -156,7 +156,7 @@ Digital Pin 4 - RESET
 
 DO NOT connect the 5V output on the Arduino to the 5V output on the qik 2s12v10!
 */
-PololuQik2s12v10 qik(4);
+PololuQik2s12v10 qik(12);
 //PololuQik2s12v10 qik(2, 3, 4);
 // **************** FOR ROBOT BASE ******************
 // Motor 0 is the left and Motor 1 is the right
@@ -176,7 +176,7 @@ int echoPin = 51;
 long duration;
 double distance;
 boolean obstacle = false;
-const double DISTANCE_TO_STOP_CM = 70;
+const double DISTANCE_TO_STOP_CM = 45; //was 70cm
 //**************************************************
 
 //******rotation speed*******
@@ -293,14 +293,14 @@ for(int i = 0; i <= 16; i=i+2){
   
   pinMode(7, INPUT);//change to correct pin numbers
   pinMode(8, INPUT);
-  pinMode(2, INPUT);
+  pinMode(4, INPUT);
   pinMode(3, INPUT);
 
   pinMode(BDPIN_LED_USER_3,OUTPUT);
 
   attachInterrupt(digitalPinToInterrupt(7), enc_aM0, CHANGE);
   attachInterrupt(digitalPinToInterrupt(8), enc_bM0, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(2), enc_aM1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(4), enc_aM1, CHANGE);
   attachInterrupt(digitalPinToInterrupt(3), enc_bM1, CHANGE);
   
  // initialize encoder values
@@ -366,6 +366,8 @@ void loop()
   SimpleTimer timer;
   int timerID = timer.setInterval(1000, sonarSweep); //Call sonarSweep every 1 second
   */
+  
+  
   sonarSweep();
 
  // receiveRemoteControlData();
@@ -379,17 +381,16 @@ void loop()
     controlMotorSpeed();
     tTime[0] = millis();
  // qik.getErrors();
- }
+    }
     else{
       stopMotor();
       tone(BDPIN_BUZZER, beep, noteDuration);
       delay(noteDuration / 2);
       noTone(BDPIN_BUZZER);
-/*    Need some function to keep track of time so robot does not rotate infinitely
-      while(obstacle){
-        rotateClockwise();
-      }
-      */
+//  Need some function to keep track of time so robot does not rotate infinitely
+        while(obstacle){
+          rotateClockwise();
+        }     
     }
   }
 
@@ -557,14 +558,14 @@ void enc_aM1()
 {
   if (digitalRead(3) == HIGH)
   {
-    if (digitalRead(2) == HIGH)
+    if (digitalRead(4) == HIGH)
       encoderValueM1--;
     else
       encoderValueM1++;
   }
   else
   {
-    if (digitalRead(2) == HIGH)
+    if (digitalRead(4) == HIGH)
       encoderValueM1++;
     else
       encoderValueM1--;
@@ -573,7 +574,7 @@ void enc_aM1()
 
 void enc_bM1()
 {
-  if (digitalRead(2) == HIGH)
+  if (digitalRead(4) == HIGH)
   {
     if (digitalRead(3) == HIGH)
       encoderValueM1++;
@@ -609,8 +610,8 @@ void publishSensorStateMsg(void)
   // Motor 0 is the left and Motor 1 is the right
   // **************************************************
 
-  sensor_state_msg.left_encoder = -1*encoderValueM0; //robot thought it was going opposite directionu
-  sensor_state_msg.right_encoder = -1*encoderValueM1;
+  sensor_state_msg.left_encoder = encoderValueM0; //robot thought it was going opposite directionu
+  sensor_state_msg.right_encoder = encoderValueM1;
   
   //if (dxl_comm_result == true)
   //{
@@ -827,34 +828,26 @@ void receiveRemoteControlData(void)
 * Rotate robot clockwise
 *******************************************************************************/
 void rotateClockwise(void){
-  
-  if(!(last_velocity_[RIGHT] == 0 && last_velocity_[LEFT] == 0)){
-    stopMotor();
-  }
-  while(obstacle){  
-    resetObstacle();
-    qik.setM0Speed(ROTATION_VELOCITY);
+  for(int i = 0; i < 10; i++){
+    qik.setM0Speed(-ROTATION_VELOCITY);
     qik.setM1Speed(-ROTATION_VELOCITY);
-    sonarSweep(); 
-  } 
-
-  stopMotor();
+  }
+  resetObstacle();
+  sonarSweep();
+  //stopMotor();
 }
 
 /******************************************************************************
 * Rotate robot counterclockwise
 *******************************************************************************/
 void rotateCounterClockwise(void){
-  
-  if(!(last_velocity_[RIGHT] == 0 && last_velocity_[LEFT] == 0)){
-    stopMotor();
-  }
-  while(obstacle){
-    resetObstacle();
-    qik.setM0Speed(-ROTATION_VELOCITY);
+  for(int i = 0; i < 10; i++){
+    qik.setM0Speed(ROTATION_VELOCITY);
     qik.setM1Speed(ROTATION_VELOCITY);
-    sonarSweep();
   }
+  resetObstacle();
+  sonarSweep();
+  //stopMotor();
 }
 
 /******************************************************************************
