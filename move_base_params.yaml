@@ -1,5 +1,5 @@
 shutdown_costmaps: false
-controller_frequency: 0.5 #3.0
+controller_frequency: 2.0 #0.5 #3.0 maybe increase to get rid of arcs when driving forward, update: Yes this works!
 controller_patience: 1.0
 planner_frequency: 2.0
 planner_patience: 1.0
