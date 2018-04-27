@@ -1,10 +1,19 @@
-obstacle_range: 2.0 #2.5
-raytrace_range: 3.5
+obstacle_range: 0.95 #2.0 #2.5
+raytrace_range: 2.0 #3.5
 footprint: [[-0.24575,-0.3129], [-0.24575,0.3129], [0.26575,0.3129], [0.26575,-0.3129]] #[[-0.110, -0.090], [-0.110, 0.090], [0.041, 0.090], [0.041, -0.090]]
 #robot_radius: 0.105
 inflation_radius: 0.13 #0.15
 cost_scaling_factor: 0.5
 map_type: costmap
-transform_tolerance: 0.2
-observation_sources: scan
-scan: {data_type: LaserScan, topic: scan, marking: true, clearing: true}
+transform_tolerance: 15 #0.2
+observation_sources: scan scan2
+scan: {data_type: LaserScan, topic: scan, marking: true, clearing: true, observation_persistance: 0.0}
+scan2: {data_type: LaserScan, topic: scan2, marking: true, clearing: true, observation_persistance: 0.0}
+
+#range_sensor_layer:
+#   #ns: /ultrasound
+#   topics: ["/sonar_two_range","/sonar_three_range","/sonar_four_range","/sonar_five_range","/sonar_six_range","/sonar_seven_range","/sonar_eight_range"] #took out sonar_one_range because it doesn't seem to work
+#   no_readings_timeout: 0.0
+#   clear_threshold: 0.98 #2.0
+#   mark_threshold: 0.98 #0.8 #8.0
+#   clear_on_max_reading: true

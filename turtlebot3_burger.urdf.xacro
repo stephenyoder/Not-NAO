@@ -1,33 +1,35 @@
 <?xml version="1.0" ?>
 <robot name="turtlebot3_burger" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find turtlebot3_description)/urdf/common_properties.xacro"/>
-  <xacro:include filename="$(find turtlebot3_description)/urdf/turtlebot3_burger.gazebo.xacro"/>
+  <xacro:include filename="$(find turtlebot3_description)/urdf/sonar_sensor.urdf.xacro"/>
+  <!-- <xacro:include filename="$(find turtlebot3_description)/urdf/turtlebot3_burger.gazebo.xacro"/> -->
 
   <link name="base_footprint"/>
 
   <joint name="base_joint" type="fixed">
     <parent link="base_footprint"/>
     <child link="base_link"/>
-    <origin xyz="0.0 0.0 0.010" rpy="0 0 ${M_PI}"/>
+    <origin xyz="0.1524 0.0 .1651" rpy="0 0 0"/>
   </joint>
 
   <link name="base_link">
     <visual>
-      <origin xyz="-0.032 0 0.0" rpy="0 0 0"/>
+      <origin xyz="-0.1524 0 0.0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://turtlebot3_description/meshes/bases/burger_base.stl" scale="0.001 0.001 0.001"/>
+	<box size="0.4572 0.4572 0.00635"/>
+        <!-- <mesh filename="package://turtlebot3_description/meshes/bases/burger_base.stl" scale="0.001 0.001 0.001"/> -->
       </geometry>
       <material name="light_black"/>
     </visual>
 
     <collision>
-      <origin xyz="-0.032 0 0.070" rpy="0 0 0"/>
+      <origin xyz="-0.1524 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.140 0.140 0.140"/>
+        <box size="0.4572 0.4572 0.00635"/>
       </geometry>
     </collision>
 
-    <inertial>
+    <inertial> <!-- update -->
       <origin xyz="-0.032 0 0" rpy="0 0 0"/>
       <mass value="1"/>
       <inertia ixx="0.01" ixy="0.0" ixz="0.0"
@@ -39,15 +41,17 @@
   <joint name="wheel_left_joint" type="continuous">
     <parent link="base_link"/>
     <child link="wheel_left_link"/>
-    <origin xyz="0.0 0.08 0.023" rpy="${-M_PI*0.5} 0 0"/>
+    <origin xyz="0.0 0.2794 -0.0381" rpy="${-M_PI*0.5} 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
 
+
   <link name="wheel_left_link">
     <visual>
-      <origin xyz="0 0 0" rpy="${M_PI*0.5} 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://turtlebot3_description/meshes/wheels/left_tire.stl" scale="0.001 0.001 0.001"/>
+	<cylinder length="0.0635" radius="0.127"/>
+        <!-- <mesh filename="package://turtlebot3_description/meshes/wheels/left_tire.stl" scale="0.001 0.001 0.001"/> -->
       </geometry>
       <material name="dark"/>
     </visual>
@@ -55,31 +59,32 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder length="0.018" radius="0.033"/>
+        <cylinder length="0.0635" radius="0.127"/>
       </geometry>
     </collision>
 
-    <inertial>
+    <inertial> <!-- update -->
       <origin xyz="0 0 0" />
-      <mass value="0.01" />
-      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
-               iyy="0.001" iyz="0.0"
-               izz="0.001" />
+      <mass value="3.742137" />
+      <inertia ixx="0.016347" ixy="0.0" ixz="0.0"
+               iyy="0.016347" iyz="0.0"
+               izz="0.030178" />
     </inertial>
   </link>
 
   <joint name="wheel_right_joint" type="continuous">
     <parent link="base_link"/>
     <child link="wheel_right_link"/>
-    <origin xyz="0.0 -0.08 0.023" rpy="${-M_PI*0.5} 0 0"/>
+    <origin xyz="0.0 -0.2794 -0.0381" rpy="${-M_PI*0.5} 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
 
   <link name="wheel_right_link">
     <visual>
-      <origin xyz="0 0 0" rpy="${M_PI*0.5} 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://turtlebot3_description/meshes/wheels/right_tire.stl" scale="0.001 0.001 0.001"/>
+	<cylinder length="0.0635" radius="0.127"/>
+        <!-- <mesh filename="package://turtlebot3_description/meshes/wheels/right_tire.stl" scale="0.001 0.001 0.001"/> -->
       </geometry>
       <material name="dark"/>
     </visual>
@@ -87,7 +92,38 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder length="0.018" radius="0.033"/>
+        <cylinder length="0.0635" radius="0.127"/>
+      </geometry>
+    </collision>
+
+    <inertial> <!-- update 8.25lb wheel -->
+      <origin xyz="0 0 0" />
+      <mass value="3.742137" />
+      <inertia ixx="0.016347" ixy="0.0" ixz="0.0"
+               iyy="0.016347" iyz="0.0"
+               izz="0.030178" />
+    </inertial>
+  </link>
+
+  <joint name="caster_back_left_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_back_left_link"/>
+    <origin xyz="${-0.1905-0.1524} 0.18415 -0.1016" rpy="${-M_PI*0.5} 0 0"/>
+  </joint>
+
+  <link name="caster_back_left_link">
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<cylinder length="0.03175" radius="0.0508"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<cylinder length="0.03175" radius="0.0508"/>
       </geometry>
     </collision>
 
@@ -100,17 +136,26 @@
     </inertial>
   </link>
 
-  <joint name="caster_back_joint" type="fixed">
+
+<joint name="caster_back_right_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="caster_back_link"/>
-    <origin xyz="-0.081 0 -0.004" rpy="${-M_PI*0.5} 0 0"/>
+    <child link="caster_back_right_link"/>
+    <origin xyz="${-0.1905-0.1524} -0.18415 -0.1016" rpy="${-M_PI*0.5} 0 0"/>
   </joint>
 
-  <link name="caster_back_link">
+  <link name="caster_back_right_link">
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<cylinder length="0.03175" radius="0.0508"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.030 0.010 0.020"/>
+	<cylinder length="0.03175" radius="0.0508"/>
       </geometry>
     </collision>
 
@@ -126,15 +171,457 @@
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="-0.032 0 0.068" rpy="0 0 0"/>
+    <origin xyz="0 0.0254 0" rpy="0 0 0"/> <!-- ${-M_PI*0.25}"-->
   </joint>
 
   <link name="imu_link"/>
 
-  <joint name="scan_joint" type="fixed">
+  <joint name="lidar_two_joint" type="fixed">
     <parent link="base_link"/>
+    <child link="obstacle_scan"/>
+    <origin xyz="-0.0762 0 0.2413" rpy="0 0 0"/>
+  </joint>
+
+  <link name="obstacle_scan">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<cylinder length="0.1016" radius="0.0254"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1016" radius="0.0254"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+    
+  </link>
+
+
+  <joint name="sonar_one_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_one_range"/>
+    <origin xyz="${0.1524-0.1524} 0.1524 0.1905" rpy="0 0 ${M_PI*0.5}"/>
+  </joint>
+
+  <link name="sonar_one_range">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.015 0.0508 0.0254"/>
+        
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.0508 0.0254"/>
+      </geometry>
+    </collision>
+
+    <inertial> <!-- update -->
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+    
+  </link>
+
+  <joint name="sonar_two_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_two_range"/>
+    <origin xyz="${0.1905-0.1524} 0.1397 0.1905" rpy="0 0 1.13446"/>
+  </joint>
+
+  <link name="sonar_two_range">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.015 0.0508 0.0254"/>
+        
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.0508 0.0254"/>
+      </geometry>
+    </collision>
+
+    <inertial> 
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+    
+  </link>
+
+  <joint name="sonar_three_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_three_range"/>
+    <origin xyz="${0.2286-0.1524} 0.1016 0.1905" rpy="0 0 0.698132"/>
+  </joint>
+
+  <link name="sonar_three_range">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.015 0.0508 0.0254"/>
+        
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.0508 0.0254"/>
+      </geometry>
+    </collision>
+
+    <inertial> 
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+    
+  </link>
+
+  <joint name="sonar_four_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_four_range"/>
+    <origin xyz="${0.254-0.1524} 0.0381 0.1905" rpy="0 0 0.261799"/>
+  </joint>
+
+  <link name="sonar_four_range">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.015 0.0508 0.0254"/>
+        
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.0508 0.0254"/>
+      </geometry>
+    </collision>
+
+    <inertial> 
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+    
+  </link>
+
+  <joint name="sonar_five_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_five_range"/>
+    <origin xyz="${0.254-0.1524} -0.0381 0.1905" rpy="0 0 -0.261799"/>
+  </joint>
+
+  <link name="sonar_five_range">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.015 0.0508 0.0254"/>
+        
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.0508 0.0254"/>
+      </geometry>
+    </collision>
+
+    <inertial> 
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+    
+  </link>
+
+  <joint name="sonar_six_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_six_range"/>
+    <origin xyz="${0.2286-0.1524} -0.1016 0.1905" rpy="0 0 -0.698132"/>
+  </joint>
+
+  <link name="sonar_six_range">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.015 0.0508 0.0254"/>
+        
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.0508 0.0254"/>
+      </geometry>
+    </collision>
+
+    <inertial> 
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+    
+  </link>
+
+  <joint name="sonar_seven_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_seven_range"/>
+    <origin xyz="${0.1905-0.1524} -0.1397 0.1905" rpy="0 0 -1.13446"/>
+  </joint>
+
+  <link name="sonar_seven_range">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.015 0.0508 0.0254"/>
+        
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.0508 0.0254"/>
+      </geometry>
+    </collision>
+
+    <inertial> 
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+    
+  </link>
+
+  <joint name="sonar_eight_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_eight_range"/>
+    <origin xyz="${0.1524-0.1524} -0.1524 0.1905" rpy="0 0 ${M_PI*-0.5}"/>
+  </joint>
+
+  <link name="sonar_eight_range">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.015 0.0508 0.0254"/>
+        
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.015 0.0508 0.0254"/>
+      </geometry>
+    </collision>
+
+    <inertial> <!-- update -->
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+    
+  </link>
+
+ 
+ 
+  <!--<xacro:sonar_sensor name="sonar" parent="base_link" ros_topic="/ultrasound" update_rate="10" min_range="0.15" max_range="1.5" 	    field_of_view="${10*M_PI/180}" ray_count="3">  
+  	<origin xyz="${0.254-0.1524} 0 0.1905" rpy="0 0 0"/>
+ </xacro:sonar_sensor> -->
+
+  <joint name="center_post_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="center_post_link"/>
+    <origin xyz="0.0 0 .1651" rpy="0 0 0"/>
+    
+  </joint>
+
+
+  <link name="center_post_link">
+    <visual>
+      <origin xyz="0 0 ${(0.9652/2)}" rpy="0 0 0"/>
+      <geometry>
+	<cylinder length="0.9652" radius="0.03175"/>
+        
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${(0.9652/2)}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.9652" radius="0.03175"/>
+      </geometry>
+    </collision>
+
+    <inertial> <!-- update -->
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+  </link>
+
+
+
+ <joint name="center_post_top_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="center_post_top_link"/>
+    <origin xyz="0.0 0 ${.1651+0.9652}" rpy="0 0 0"/>
+    
+  </joint>
+
+
+  <link name="center_post_top_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.127 0.127 0.00635"/> 
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.127 0.127 0.00635"/>
+      </geometry>
+    </collision>
+
+    <inertial> <!-- update -->
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+  </link>
+
+
+<joint name="lidar_post_joint" type="fixed">
+    <parent link="center_post_top_link"/>
+    <child link="lidar_post_link"/>
+    <origin xyz="-0.0508 0 ${0.2921/2}" rpy="0 0 0"/>
+    
+  </joint>
+
+
+  <link name="lidar_post_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.0254 0.0254 0.2921"/> 
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.0254 0.0254 0.2921"/>
+      </geometry>
+    </collision>
+
+    <inertial> <!-- update -->
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+  </link>
+
+<joint name="lidar_base_joint" type="fixed">
+    <parent link="lidar_post_link"/>
+    <child link="lidar_base_link"/>
+    <origin xyz="${-0.1778/2} 0 ${0.2921/2}" rpy="0 0 0"/>
+    
+  </joint>
+
+
+  <link name="lidar_base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+	<box size="0.1778 0.1397 0.00635"/> 
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1778 0.1397 0.00635"/>
+      </geometry>
+    </collision>
+
+    <inertial> <!-- update -->
+      <origin xyz="0 0 0" />
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+               iyy="0.001" iyz="0.0"
+               izz="0.001" />
+    </inertial>
+  </link>
+
+
+
+
+  <joint name="scan_joint" type="fixed">
+    <parent link="lidar_base_link"/>
     <child link="base_scan"/>
-    <origin xyz="-0.032 0 0.171" rpy="0 0 0"/>
+    <origin xyz="0 0 0.0381" rpy="0 0 ${-M_PI}"/>
   </joint>
 
   <link name="base_scan">
