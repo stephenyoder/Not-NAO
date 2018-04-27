@@ -23,6 +23,12 @@
 //#include <SoftwareSerial.h>
 #include <PololuQik.h>
 
+//the following is for the sonar sensors
+#include <ros.h>
+#include <ros/time.h>
+#include <sensor_msgs/Range.h>
+#define USE_USBCON
+
 /*******************************************************************************
 * ROS NodeHandle
 *******************************************************************************/
@@ -39,6 +45,25 @@ ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("cmd_vel", commandVelocityCall
 // Bumpers, cliffs, buttons, encoders, battery of Turtlebot3
 turtlebot3_msgs::SensorState sensor_state_msg;
 ros::Publisher sensor_state_pub("sensor_state", &sensor_state_msg);
+
+//sonar sensors
+sensor_msgs::Range range_msg1;
+ros::Publisher pub_range1( "sonar_one_range", &range_msg1);
+sensor_msgs::Range range_msg2;
+ros::Publisher pub_range2( "sonar_two_range", &range_msg2);
+sensor_msgs::Range range_msg3;
+ros::Publisher pub_range3( "sonar_three_range", &range_msg3);
+sensor_msgs::Range range_msg4;
+ros::Publisher pub_range4( "sonar_four_range", &range_msg4);
+sensor_msgs::Range range_msg5;
+ros::Publisher pub_range5( "sonar_five_range", &range_msg5);
+sensor_msgs::Range range_msg6;
+ros::Publisher pub_range6( "sonar_six_range", &range_msg6);
+sensor_msgs::Range range_msg7;
+ros::Publisher pub_range7( "sonar_seven_range", &range_msg7);
+sensor_msgs::Range range_msg8;
+ros::Publisher pub_range8( "sonar_eight_range", &range_msg8);
+
 
 // IMU of Turtlebot3
 sensor_msgs::Imu imu_msg;
@@ -78,6 +103,13 @@ double last_rad_[2];
 double last_velocity_[2];
 double goal_linear_velocity  = 0.0;
 double goal_angular_velocity = 0.0;
+
+/*******************************************************************************
+* Declaration for odom/imu
+*******************************************************************************/
+bool init_orientation = false;
+bool robot_moving = true;
+bool init_imu_orientation = false;
 
 /*******************************************************************************
 * Declaration for IMU
@@ -176,7 +208,16 @@ int echoPin = 51;
 long duration;
 double distance;
 boolean obstacle = false;
-const double DISTANCE_TO_STOP_CM = 45; //was 70cm
+const double DISTANCE_TO_STOP_CM = 70;
+long range_time;
+char frameid1[] = "sonar_one_range";
+char frameid2[] = "sonar_two_range";
+char frameid3[] = "sonar_three_range";
+char frameid4[] = "sonar_four_range";
+char frameid5[] = "sonar_five_range";
+char frameid6[] = "sonar_six_range";
+char frameid7[] = "sonar_seven_range";
+char frameid8[] = "sonar_eight_range";
 //**************************************************
 
 //******rotation speed*******
@@ -312,6 +353,16 @@ for(int i = 0; i <= 16; i=i+2){
   //nh.getHardware()->setBaud(115200);
   nh.subscribe(cmd_vel_sub);
   nh.advertise(sensor_state_pub);
+  //sonar sensors
+  nh.advertise(pub_range1);
+  nh.advertise(pub_range2);
+  nh.advertise(pub_range3);
+  nh.advertise(pub_range4);
+  nh.advertise(pub_range5);
+  nh.advertise(pub_range6);
+  nh.advertise(pub_range7);
+  nh.advertise(pub_range8);
+  
   nh.advertise(imu_pub);
  // nh.advertise(cmd_vel_rc100_pub);
   nh.advertise(odom_pub);
@@ -322,6 +373,57 @@ for(int i = 0; i <= 16; i=i+2){
 
   // Setting for Dynamixel motors
  // motor_driver.init();
+
+ // Setting up Sonar Sensors
+  range_msg1.radiation_type = sensor_msgs::Range::ULTRASOUND;
+  range_msg1.header.frame_id =  frameid1;
+  range_msg1.field_of_view = 0.21;  //now 12 deg, was 18 degrees in rad
+  range_msg1.min_range = 0.09; //in meters, was 0.09m
+  range_msg1.max_range = 1.0; //was 2m
+
+  range_msg2.radiation_type = sensor_msgs::Range::ULTRASOUND;
+  range_msg2.header.frame_id =  frameid2;
+  range_msg2.field_of_view = 0.21;  // 18 degrees in rad
+  range_msg2.min_range = 0.09; //in meters
+  range_msg2.max_range = 1.0;
+
+  range_msg3.radiation_type = sensor_msgs::Range::ULTRASOUND;
+  range_msg3.header.frame_id =  frameid3;
+  range_msg3.field_of_view = 0.21;  // 18 degrees in rad
+  range_msg3.min_range = 0.09; //in meters
+  range_msg3.max_range = 1.0; //
+
+  range_msg4.radiation_type = sensor_msgs::Range::ULTRASOUND;
+  range_msg4.header.frame_id =  frameid4;
+  range_msg4.field_of_view = 0.21;  // 18 degrees in rad
+  range_msg4.min_range = 0.09; //in meters
+  range_msg4.max_range = 1.0;
+
+  range_msg5.radiation_type = sensor_msgs::Range::ULTRASOUND;
+  range_msg5.header.frame_id =  frameid5;
+  range_msg5.field_of_view = 0.21;  // 18 degrees in rad
+  range_msg5.min_range = 0.09; //in meters
+  range_msg5.max_range = 1.0;
+
+  range_msg6.radiation_type = sensor_msgs::Range::ULTRASOUND;
+  range_msg6.header.frame_id =  frameid6;
+  range_msg6.field_of_view = 0.21;  // 18 degrees in rad
+  range_msg6.min_range = 0.09; //in meters
+  range_msg6.max_range = 1.0;
+
+  range_msg7.radiation_type = sensor_msgs::Range::ULTRASOUND;
+  range_msg7.header.frame_id =  frameid7;
+  range_msg7.field_of_view = 0.21;  // 18 degrees in rad
+  range_msg7.min_range = 0.09; //in meters
+  range_msg7.max_range = 1.0;
+
+  range_msg8.radiation_type = sensor_msgs::Range::ULTRASOUND;
+  range_msg8.header.frame_id =  frameid8;
+  range_msg8.field_of_view = 0.21;  // 18 degrees in rad
+  range_msg8.min_range = 0.09; //in meters
+  range_msg8.max_range = 1.0;
+
+  
 
   // Setting for IMU
   imu.begin();
@@ -354,6 +456,9 @@ for(int i = 0; i <= 16; i=i+2){
   setup_end = true;
   //SimpleTimer timer;
   //int timerID;
+
+  
+  
 }
 
 /*******************************************************************************
@@ -361,38 +466,90 @@ for(int i = 0; i <= 16; i=i+2){
 *******************************************************************************/
 void loop()
 {
-  resetObstacle(); //every loop iteration, set reset obstacle to false. If an obstacle is detected in the following lines it obstacle will become true
+  //resetObstacle(); //every loop iteration, set reset obstacle to false. If an obstacle is detected in the following lines it obstacle will become true
   /*
   SimpleTimer timer;
   int timerID = timer.setInterval(1000, sonarSweep); //Call sonarSweep every 1 second
   */
-  
-  
-  sonarSweep();
+  //sonarSweep();
 
  // receiveRemoteControlData();
 
 //sonar arrays on the side are 10,11 & 14,15
 //sonar arrays next to side are 50,51 & 16,17
 
-  if ((millis()-tTime[0]) >= (1000 / CONTROL_MOTOR_SPEED_PERIOD))
-  {
-    if(!obstacle){
+
+  if ((millis()-tTime[0]) >= (1000 / CONTROL_MOTOR_SPEED_PERIOD)){
+    //if(!obstacle){
     controlMotorSpeed();
     tTime[0] = millis();
  // qik.getErrors();
-    }
-    else{
+ }
+ if(millis() >= range_time ){
+      //first pin trig, second echo
+      readSensorData(10,11);//sonar 1
+      //int r =0;  
+      range_msg1.range = distance / 100; //divide by 100 to convert cm -> m
+      range_msg1.header.stamp = nh.now();
+      pub_range1.publish(&range_msg1);
+      //range_time =  millis() + 7; //50; probably don't need to update everytime
+      
+      readSensorData(50,51);//sonar 2
+      range_msg2.range = distance / 100; //divide by 100 to convert cm -> m
+      range_msg2.header.stamp = nh.now();
+      pub_range2.publish(&range_msg2);
+      //range_time =  millis() + 7; //50;
+      
+      readSensorData(52,53);//sonar 3
+      range_msg3.range = distance / 100; //divide by 100 to convert cm -> m
+      range_msg3.header.stamp = nh.now();
+      pub_range3.publish(&range_msg3);
+      //range_time =  millis() + 7; //50;
+      
+      readSensorData(54,55);//sonar 4
+      range_msg4.range = distance / 100; //divide by 100 to convert cm -> m
+      range_msg4.header.stamp = nh.now();
+      pub_range4.publish(&range_msg4);
+      //range_time =  millis() + 7; //50;
+      
+      readSensorData(56,57);//sonar 5
+      range_msg5.range = distance / 100; //divide by 100 to convert cm -> m
+      range_msg5.header.stamp = nh.now();
+      pub_range5.publish(&range_msg5);
+      //range_time =  millis() + 7; //50;
+      
+      readSensorData(58,59);//sonar 6
+      range_msg6.range = distance / 100; //divide by 100 to convert cm -> m
+      range_msg6.header.stamp = nh.now();
+      pub_range6.publish(&range_msg6);
+      //range_time =  millis() + 7; //50;
+      
+      readSensorData(60,61);//sonar 7
+      range_msg7.range = distance / 100; //divide by 100 to convert cm -> m
+      range_msg7.header.stamp = nh.now();
+      pub_range7.publish(&range_msg7);
+      //range_time =  millis() + 7; //50;
+      
+      readSensorData(62,63);//sonar 8
+      range_msg8.range = distance / 100; //divide by 100 to convert cm -> m
+      range_msg8.header.stamp = nh.now();
+      pub_range8.publish(&range_msg8);
+      range_time =  millis() + 200; //update frquency = 5hz or + 200
+      
+}
+    /*else{
       stopMotor();
       tone(BDPIN_BUZZER, beep, noteDuration);
       delay(noteDuration / 2);
       noTone(BDPIN_BUZZER);
-//  Need some function to keep track of time so robot does not rotate infinitely
-        while(obstacle){
-          rotateClockwise();
-        }     
-    }
-  }
+      */
+/*    Need some function to keep track of time so robot does not rotate infinitely
+      while(obstacle){
+        rotateClockwise();
+      }
+      */
+//    }
+//  }
 
   if ((millis()-tTime[1]) >= (1000 / CMD_VEL_PUBLISH_PERIOD))
   {
@@ -453,6 +610,9 @@ void commandVelocityCallback(const geometry_msgs::Twist& cmd_vel_msg)
 *******************************************************************************/
 void publishImuMsg(void)
 {
+  static geometry_msgs::Quaternion last_imu_orientation;
+  static geometry_msgs::Quaternion last_tf_orientation;
+  
   imu_msg.header.stamp    = nh.now();
   imu_msg.header.frame_id = "imu_link";
 
@@ -482,10 +642,40 @@ void publishImuMsg(void)
   imu_msg.linear_acceleration_covariance[7] = 0;
   imu_msg.linear_acceleration_covariance[8] = 0.04;
 
-  imu_msg.orientation.w = imu.quat[0];
-  imu_msg.orientation.x = imu.quat[1];
-  imu_msg.orientation.y = imu.quat[2];
-  imu_msg.orientation.z = imu.quat[3];
+  if(!init_imu_orientation)
+  {
+    imu_msg.orientation.w = imu.quat[0];
+    imu_msg.orientation.x = imu.quat[1];
+    imu_msg.orientation.y = imu.quat[2];
+    imu_msg.orientation.z = imu.quat[3]; 
+
+    tfs_msg.transform.rotation.w = imu.quat[0];
+    tfs_msg.transform.rotation.x = imu.quat[1];
+    tfs_msg.transform.rotation.y = imu.quat[2];
+    tfs_msg.transform.rotation.z = imu.quat[3];
+    
+    init_imu_orientation=true;
+  }
+
+  if(!robot_moving)
+  {//only really need to keep track of w and z as those are changing steadily more so
+    imu_msg.orientation.w = last_imu_orientation.w;
+    imu_msg.orientation.x = last_imu_orientation.x;
+    imu_msg.orientation.y = last_imu_orientation.y;
+    imu_msg.orientation.z = last_imu_orientation.z;
+  }
+  else
+  {
+    imu_msg.orientation.w = imu.quat[0];
+    imu_msg.orientation.x = imu.quat[1];
+    imu_msg.orientation.y = imu.quat[2];
+    imu_msg.orientation.z = imu.quat[3];
+  }
+  //Serial.println(imu_msg.orientation.w,6);
+  //Serial.println(imu_msg.orientation.z,6);
+  //Serial.println(imu_msg.orientation.x,6);
+  //Serial.println(imu_msg.orientation.y,6);
+  //set w back to one if delta_theta is small
 
   imu_msg.orientation_covariance[0] = 0.0025;
   imu_msg.orientation_covariance[1] = 0;
@@ -502,14 +692,40 @@ void publishImuMsg(void)
   tfs_msg.header.stamp    = nh.now();
   tfs_msg.header.frame_id = "base_link";
   tfs_msg.child_frame_id  = "imu_link";
-  tfs_msg.transform.rotation.w = imu.quat[0];
-  tfs_msg.transform.rotation.x = imu.quat[1];
-  tfs_msg.transform.rotation.y = imu.quat[2];
-  tfs_msg.transform.rotation.z = imu.quat[3];
+
+  if(!robot_moving)
+  {//only really need to keep track of w and z as those are changing steadily more so
+    tfs_msg.transform.rotation.w = last_tf_orientation.w;
+    tfs_msg.transform.rotation.x = last_tf_orientation.x;
+    tfs_msg.transform.rotation.y = last_tf_orientation.y;
+    tfs_msg.transform.rotation.z = last_tf_orientation.z;
+  }
+  else
+  {
+    tfs_msg.transform.rotation.w = imu.quat[0];
+    tfs_msg.transform.rotation.x = imu.quat[1];
+    tfs_msg.transform.rotation.y = imu.quat[2];
+    tfs_msg.transform.rotation.z = imu.quat[3];
+  }
 
   tfs_msg.transform.translation.x = -0.032;
   tfs_msg.transform.translation.y = 0.0;
   tfs_msg.transform.translation.z = 0.068;
+
+  last_imu_orientation.w = imu_msg.orientation.w;
+  last_imu_orientation.x = imu_msg.orientation.x;
+  last_imu_orientation.y = imu_msg.orientation.y;
+  last_imu_orientation.z = imu_msg.orientation.z;
+  
+  last_tf_orientation.w = tfs_msg.transform.rotation.w;
+  last_tf_orientation.x = tfs_msg.transform.rotation.x;
+  last_tf_orientation.y = tfs_msg.transform.rotation.y;
+  last_tf_orientation.z = tfs_msg.transform.rotation.z;
+
+  //Serial.println(tfs_msg.transform.rotation.w,6);
+  //Serial.println(tfs_msg.transform.rotation.z,6);
+  //Serial.println(tfs_msg.transform.rotation.x,6);
+  //Serial.println(tfs_msg.transform.rotation.y,6);
 
   tfbroadcaster.sendTransform(tfs_msg);
 }
@@ -682,6 +898,7 @@ bool updateOdometry(double diff_time)
   double wheel_l, wheel_r;      // rotation value of wheel [rad]
   double delta_s, delta_theta;
   static double last_theta = 0.0;
+  static geometry_msgs::Quaternion last_orientation; //make static
   double v, w;                  // v = translational velocity [m/s], w = rotational velocity [rad/s]
   double step_time;
 
@@ -708,16 +925,38 @@ bool updateOdometry(double diff_time)
   delta_theta = atan2f(imu.quat[1]*imu.quat[2] + imu.quat[0]*imu.quat[3],
                        0.5f - imu.quat[2]*imu.quat[2] - imu.quat[3]*imu.quat[3]) - last_theta;
 
-  v = delta_s / step_time;
-  w = delta_theta / step_time;
+  //move update after delta_theta correction
+  /*v = delta_s / step_time;
+  w = delta_theta / step_time;*/
+  
 
   last_velocity_[LEFT]  = wheel_l / step_time;
   last_velocity_[RIGHT] = wheel_r / step_time;
 
+  Serial.print("i");
+  Serial.println(imu.quat[3],7);
+
+  Serial.print(" delta_theta before = ");
+  Serial.println(delta_theta,6);
+  //.00009 is too small, 0.0002 is too small, saw 0.000696 once, was 0.0003, 0.00045
+  if(abs(delta_theta) <= 0.0017)//maybe also compare to previous delta_theta to get rid of outliers
+  {
+    //Serial.println("yes");
+    delta_theta = 0;
+    robot_moving = false;
+  }
+
+   v = delta_s / step_time;
+  w = delta_theta / step_time;
+
   // compute odometric pose
   odom_pose[0] += delta_s * cos(odom_pose[2] + (delta_theta / 2.0));
   odom_pose[1] += delta_s * sin(odom_pose[2] + (delta_theta / 2.0));
-  odom_pose[2] += delta_theta;
+  odom_pose[2] += delta_theta;//find delta_theta when robot isn't moving to make dead zone
+  Serial.print(" delta_theta = ");
+  Serial.println(delta_theta,6);
+  Serial.print("odom_pose[2] = ");
+  Serial.println(odom_pose[2],6);
 
   // compute odometric instantaneouse velocity
   odom_vel[0] = v;
@@ -727,11 +966,29 @@ bool updateOdometry(double diff_time)
   odom.pose.pose.position.x = odom_pose[0];
   odom.pose.pose.position.y = odom_pose[1];
   odom.pose.pose.position.z = 0;
-  odom.pose.pose.orientation = tf::createQuaternionFromYaw(odom_pose[2]);
+  if(!init_orientation)
+  { 
+   last_orientation = tf::createQuaternionFromYaw(odom_pose[2]);
+   init_orientation = true; 
+  }
+  if(abs(delta_theta) <= 0.0011)
+  {
+    //Serial.println("yes");
+    odom.pose.pose.orientation = last_orientation;
+  }
+  else
+  {
+    robot_moving = true;
+    odom.pose.pose.orientation = tf::createQuaternionFromYaw(odom_pose[2]);
+  }
+  //Serial.print("orientation = ");
+  //Serial.println(odom.pose.pose.orientation);
 
   // We should update the twist of the odometry
   odom.twist.twist.linear.x  = odom_vel[0];
   odom.twist.twist.angular.z = odom_vel[2];
+
+  last_orientation = odom.pose.pose.orientation; //store last orientation
 
   last_theta = atan2f(imu.quat[1]*imu.quat[2] + imu.quat[0]*imu.quat[3],
                       0.5f - imu.quat[2]*imu.quat[2] - imu.quat[3]*imu.quat[3]);
@@ -828,26 +1085,34 @@ void receiveRemoteControlData(void)
 * Rotate robot clockwise
 *******************************************************************************/
 void rotateClockwise(void){
-  for(int i = 0; i < 10; i++){
-    qik.setM0Speed(-ROTATION_VELOCITY);
-    qik.setM1Speed(-ROTATION_VELOCITY);
+  
+  if(!(last_velocity_[RIGHT] == 0 && last_velocity_[LEFT] == 0)){
+    stopMotor();
   }
-  resetObstacle();
-  sonarSweep();
-  //stopMotor();
+  while(obstacle){  
+    resetObstacle();
+    qik.setM0Speed(ROTATION_VELOCITY);
+    qik.setM1Speed(-ROTATION_VELOCITY);
+    sonarSweep(); 
+  } 
+
+  stopMotor();
 }
 
 /******************************************************************************
 * Rotate robot counterclockwise
 *******************************************************************************/
 void rotateCounterClockwise(void){
-  for(int i = 0; i < 10; i++){
-    qik.setM0Speed(ROTATION_VELOCITY);
-    qik.setM1Speed(ROTATION_VELOCITY);
+  
+  if(!(last_velocity_[RIGHT] == 0 && last_velocity_[LEFT] == 0)){
+    stopMotor();
   }
-  resetObstacle();
-  sonarSweep();
-  //stopMotor();
+  while(obstacle){
+    resetObstacle();
+    qik.setM0Speed(-ROTATION_VELOCITY);
+    qik.setM1Speed(ROTATION_VELOCITY);
+    sonarSweep();
+  }
 }
 
 /******************************************************************************
